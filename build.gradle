@@ -5,7 +5,7 @@ buildscript {
     repositories {
         google()
         jcenter()
-        
+
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.4.2'
@@ -19,8 +19,12 @@ allprojects {
     repositories {
         google()
         jcenter()
-        
+
     }
+}
+
+ext {
+    timber_version = '4.7.1'
 }
 
 task clean(type: Delete) {
