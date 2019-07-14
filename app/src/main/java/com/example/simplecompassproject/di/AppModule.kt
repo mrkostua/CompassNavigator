@@ -1,6 +1,7 @@
 package com.example.simplecompassproject.di
 
 import com.example.simplecompassproject.App
+import com.example.simplecompassproject.util.CompassUtil
 import org.koin.dsl.module.module
 
 /**
@@ -9,6 +10,7 @@ import org.koin.dsl.module.module
 
 fun appModule(app: App) = module {
     single { app }
+    single { CompassUtil(app) }
 }
 
 fun allModules(app: App) = listOf(

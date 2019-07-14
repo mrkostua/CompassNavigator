@@ -5,6 +5,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import timber.log.Timber
 
 /**
  * Created by Kostiantyn Prysiazhnyi on 7/14/2019.
@@ -59,11 +60,15 @@ class CompassUtil(context: Context) : SensorEventListener, ICompassUtil {
                 Sensor.TYPE_ACCELEROMETER -> calculateAcceleration(event.values)
                 else -> return
             }
+
+            Timber.d("onSensorChanged event.sensor.type ${event.sensor.type}")
             val isRotationMatrixReady = SensorManager.getRotationMatrix(
                 mRotationMatrix,
                 mInclinationMatrix,
                 mGravityVector,
-                mGeomagneticVector)
+                mGeomagneticVector
+            )
+            Timber.d("onSensorChanged + isRotationMatrixReady $isRotationMatrixReady")
             if (isRotationMatrixReady) {
                 SensorManager.getOrientation(mRotationMatrix, mOrientationsResultMatrix)
                 azimuth = Math.toDegrees(mOrientationsResultMatrix[0].toDouble()).toFloat()
@@ -79,13 +84,13 @@ class CompassUtil(context: Context) : SensorEventListener, ICompassUtil {
      * Measures the ambient magnetic field in the X, Y and Z axis.
      */
     private fun calculateMagneticField(magneticFields: FloatArray) {
-        val xAxisMagneticFiled = magneticFields[0] //TODO test for performance, creating val every time sensors triggers listeners
+        val xAxisMagneticFiled = magneticFields[0]
         val yAxisMagneticFiled = magneticFields[1]
         val zAxisMagneticFiled = magneticFields[2]
 
-        mGravityVector[0] = ALPHA * mGravityVector[0] + (1 - ALPHA) * xAxisMagneticFiled
-        mGravityVector[1] = ALPHA * mGravityVector[1] + (1 - ALPHA) * yAxisMagneticFiled
-        mGravityVector[2] = ALPHA * mGravityVector[2] + (1 - ALPHA) * zAxisMagneticFiled
+        mGeomagneticVector[0] = ALPHA * mGeomagneticVector[0] + (1 - ALPHA) * xAxisMagneticFiled
+        mGeomagneticVector[1] = ALPHA * mGeomagneticVector[1] + (1 - ALPHA) * yAxisMagneticFiled
+        mGeomagneticVector[2] = ALPHA * mGeomagneticVector[2] + (1 - ALPHA) * zAxisMagneticFiled
     }
 
     /**

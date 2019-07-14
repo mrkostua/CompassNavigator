@@ -39,6 +39,7 @@ dependencies {
 
     // For logging
     implementation "com.jakewharton.timber:timber:$rootProject.timber_version"
+    implementation 'com.github.bskierys.pine:pine:0.2.1'
 
     //dependency injection
     implementation "org.koin:koin-android:$rootProject.koin_version"

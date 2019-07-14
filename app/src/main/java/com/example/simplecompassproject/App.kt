@@ -2,6 +2,7 @@ package com.example.simplecompassproject
 
 import android.app.Application
 import com.example.simplecompassproject.di.allModules
+import com.github.bskierys.pine.Pine
 import org.koin.android.ext.android.startKoin
 import timber.log.Timber
 
@@ -17,7 +18,9 @@ class App : Application() {
 
     private fun initTimber() {
         if (BuildConfig.DEBUG) {
-            Timber.plant(Timber.DebugTree())
+            val pine = Pine.Builder()
+            pine.setTagFormatter { "CustomLog $it" }
+            Timber.plant(pine.grow())
         }
     }
 

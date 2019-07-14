@@ -9,5 +9,5 @@ import org.koin.dsl.module.module
  */
 
 val viewModules = module {
-    viewModel { CompassViewModel() }
+    viewModel { CompassViewModel(get()) }
 }
