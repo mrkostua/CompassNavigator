@@ -1,5 +1,6 @@
 package com.example.simplecompassproject.ui.compass
 
+import androidx.annotation.UiThread
 import androidx.lifecycle.MutableLiveData
 import com.example.simplecompassproject.util.CompassUtil
 import com.example.simplecompassproject.util.ui.BaseViewModel
@@ -25,5 +26,10 @@ class CompassViewModel(private val compassUtil: CompassUtil) : BaseViewModel<Com
 
     fun stopListeningToSensors() {
         compassUtil.stopListeningSensors()
+    }
+
+    @UiThread
+    fun showNavigateLatLngDialog() {
+        navigator.showNavigateLatLngDialog()
     }
 }

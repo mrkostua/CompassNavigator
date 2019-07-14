@@ -11,4 +11,13 @@
     <style name="SplashTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="android:windowBackground">@drawable/bg_splash_screen</item>
     </style>
+
+    <style name="TextInputLayoutAppearance" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">@color/textTitle</item>
+    </style>
+
+
+    <style name="ContentText" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/textContent</item>
+    </style>
 </resources>

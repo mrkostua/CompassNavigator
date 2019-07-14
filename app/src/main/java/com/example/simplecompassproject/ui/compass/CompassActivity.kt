@@ -8,12 +8,16 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import com.example.simplecompassproject.R
 import com.example.simplecompassproject.databinding.ActivityCompassBinding
+import com.example.simplecompassproject.ui.navigateLatLng.NavigateLatLngDialog
 import org.koin.androidx.viewmodel.ext.android.getViewModel
 import timber.log.Timber
 
 class CompassActivity : AppCompatActivity(), CompassNavigator {
     private lateinit var binding: ActivityCompassBinding
     private lateinit var viewModel: CompassViewModel
+    private val navigationLatLngDialog by lazy {
+        NavigateLatLngDialog()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,6 +41,12 @@ class CompassActivity : AppCompatActivity(), CompassNavigator {
     override fun onPause() {
         super.onPause()
         viewModel.stopListeningToSensors()
+    }
+
+    override fun showNavigateLatLngDialog() {
+        if (!navigationLatLngDialog.isAdded && !navigationLatLngDialog.isVisible) {
+            navigationLatLngDialog.show(supportFragmentManager, "")
+        }
     }
 
     private fun observeAzimuthChanges() {

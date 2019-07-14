@@ -1,6 +1,17 @@
 <resources>
     <string name="app_name">SimpleCompassProject</string>
 
+    <!--Common-->
+    <string name="back">Back</string>
+
+    <!--Compass-->
     <string name="compass_dial" translatable="false">Compass Dial</string>
     <string name="compass_hands" translatable="false">Compass Hands</string>
+    <string name="compass_navigate_to">Navigate to</string>
+
+    <!--Navigate to lat lng-->
+    <string name="navigate_latitude_hint_text">latitude</string>
+    <string name="navigate_longitude_hint_text">longitude</string>
+    <string name="navigate_to_north">to north</string>
+    <string name="navigate_accept_button_text">accept and navigate</string>
 </resources>
