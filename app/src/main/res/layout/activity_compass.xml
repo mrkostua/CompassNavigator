@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/containerCL"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ui.CompassActivity">
+
+    <ImageView
+            android:id="@+id/compassDialIv"
+            android:layout_width="wrap_content"
+            android:layout_height="420dp"
+            android:padding="@dimen/margin_l"
+            android:contentDescription="@string/compass_dial"
+            android:src="@drawable/ic_compass_dial"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <ImageView
+            android:id="@+id/compassHandsIv"
+            android:layout_width="wrap_content"
+            android:layout_height="240dp"
+            android:layout_centerInParent="true"
+            android:layout_marginStart="@dimen/margin_ml"
+            android:contentDescription="@string/compass_hands"
+            android:scaleType="fitXY"
+            android:src="@drawable/ic_compass_hands"
+            app:layout_constraintTop_toTopOf="@+id/compassDialIv"
+            app:layout_constraintEnd_toEndOf="@+id/compassDialIv"
+            app:layout_constraintStart_toStartOf="@+id/compassDialIv"
+            app:layout_constraintBottom_toBottomOf="@+id/compassDialIv"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

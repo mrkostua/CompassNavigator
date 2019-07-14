@@ -3,7 +3,7 @@ package com.example.simplecompassproject.ui.splashScreen
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.example.simplecompassproject.ui.MainActivity
+import com.example.simplecompassproject.ui.CompassActivity
 
 /**
  * Created by Kostiantyn Prysiazhnyi on 7/13/2019.
@@ -20,7 +20,7 @@ class SplashScreenActivity : AppCompatActivity() {
     private fun navigateToCompassActivity() {
         if (decisionWasMade.not()) {
             decisionWasMade = true
-            startActivity(Intent(this, MainActivity::class.java))
+            startActivity(Intent(this, CompassActivity::class.java))
             finish()
 
         }
