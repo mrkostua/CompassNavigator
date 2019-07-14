@@ -3,7 +3,7 @@ package com.example.simplecompassproject.ui.splashScreen
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.example.simplecompassproject.ui.CompassActivity
+import com.example.simplecompassproject.ui.compass.CompassActivity
 
 /**
  * Created by Kostiantyn Prysiazhnyi on 7/13/2019.

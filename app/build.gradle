@@ -21,6 +21,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    dataBinding {
+        enabled true
+    }
 }
 
 dependencies {
@@ -36,4 +39,11 @@ dependencies {
 
     // For logging
     implementation "com.jakewharton.timber:timber:$rootProject.timber_version"
+
+    //dependency injection
+    implementation "org.koin:koin-android:$rootProject.koin_version"
+    implementation "org.koin:koin-androidx-viewmodel:$rootProject.koin_version"
+
+    // Android Architecture Components - ViewModel and LiveData
+    implementation "android.arch.lifecycle:extensions:1.1.1"
 }
