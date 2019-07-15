@@ -1,11 +1,10 @@
-package com.example.simplecompassproject.util
+package com.example.simplecompassproject.util.ui.compass
 
 import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import com.example.simplecompassproject.data.LatLng
 import timber.log.Timber
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -14,12 +13,13 @@ import kotlin.math.sin
 /**
  * Created by Kostiantyn Prysiazhnyi on 7/14/2019.
  */
-class CompassUtil(context: Context) : SensorEventListener, ICompassUtil {
+class CompassUtil(context: Context) : SensorEventListener,
+    ICompassUtil {
     companion object {
         const val ALPHA = 0.97f //TODO try 0.8
     }
 
-    var listener: CompassListener? = null
+    override var listener: CompassListener? = null
 
     private val mSensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
     private val mOrientationsResultMatrix = FloatArray(3)
@@ -29,10 +29,8 @@ class CompassUtil(context: Context) : SensorEventListener, ICompassUtil {
     private val mInclinationMatrix = FloatArray(9)
 
     private var mAzimuth: Double = 0.0
-    private var mLatLngCoordinates: LatLng? = null
 
     override fun startListeningSensorsToNorth() {
-        mLatLngCoordinates = null
         val accelerometerSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         val magneticFieldSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
 
@@ -50,11 +48,6 @@ class CompassUtil(context: Context) : SensorEventListener, ICompassUtil {
         }
     }
 
-    override fun startListeningSensorsToCoordinates(latLong: LatLng) {
-        mLatLngCoordinates = latLong
-        startListeningSensorsToNorth()
-    }
-
     /**
      * Unregister from all the sensor listeners.
      * can be called to save the battery, when compass is not in foreground.
@@ -62,6 +55,15 @@ class CompassUtil(context: Context) : SensorEventListener, ICompassUtil {
     override fun stopListeningSensors() {
         mSensorManager.unregisterListener(this)
     }
+
+    override fun calculateCoordinatesAzimuth(
+        azimuth: Float,
+        startLat: Double,
+        startLng: Double,
+        destinationLat: Double,
+        destinationLng: Double
+    ): Double = azimuth - calculateBearing(startLat, startLng, destinationLat, destinationLng)
+
 
     override fun onSensorChanged(event: SensorEvent) {
         synchronized(this) {
@@ -71,7 +73,6 @@ class CompassUtil(context: Context) : SensorEventListener, ICompassUtil {
                 else -> return
             }
 
-            Timber.d("onSensorChanged event.sensor.type ${event.sensor.type}")
             val isRotationMatrixReady = SensorManager.getRotationMatrix(
                 mRotationMatrix,
                 mInclinationMatrix,
@@ -81,18 +82,7 @@ class CompassUtil(context: Context) : SensorEventListener, ICompassUtil {
             Timber.d("onSensorChanged + isRotationMatrixReady $isRotationMatrixReady")
             if (isRotationMatrixReady) {
                 SensorManager.getOrientation(mRotationMatrix, mOrientationsResultMatrix)
-                mLatLngCoordinates.let {
-                    when (it) {
-                        null -> listener?.newAzimuthResponse(calculateNorthAzimuth(mOrientationsResultMatrix[0]).toFloat())
-                        else -> listener?.newAzimuthResponse(
-                            calculateCoordinatesAzimuth(
-                                mOrientationsResultMatrix[0],
-                                it.latitude,
-                                it.longitude
-                            ).toFloat()
-                        )
-                    }
-                }
+                listener?.newAzimuthResponse(calculateNorthAzimuth(mOrientationsResultMatrix[0]).toFloat())
             }
         }
     }
@@ -103,17 +93,6 @@ class CompassUtil(context: Context) : SensorEventListener, ICompassUtil {
     private fun calculateNorthAzimuth(orientationAzimuth: Float): Double {
         mAzimuth = Math.toDegrees(orientationAzimuth.toDouble())
         mAzimuth = (mAzimuth + 360) % 360
-        return mAzimuth
-    }
-
-    private fun calculateCoordinatesAzimuth(
-        orientationAzimuth: Float,
-        destinationLat: Double,
-        destionaLng: Double
-    ): Double {
-        mAzimuth = Math.toDegrees(orientationAzimuth.toDouble())
-        mAzimuth = (mAzimuth + 360) % 360
-        //mAzimuth -= calculateBearing() TODO not implemented
         return mAzimuth
     }
 

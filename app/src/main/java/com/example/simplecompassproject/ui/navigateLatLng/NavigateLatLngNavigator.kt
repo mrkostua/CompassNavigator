@@ -1,5 +1,6 @@
 package com.example.simplecompassproject.ui.navigateLatLng
 
+import com.example.simplecompassproject.data.LatLng
 import com.example.simplecompassproject.util.ui.Navigator
 
 /**
@@ -15,4 +16,6 @@ interface NavigateLatLngNavigator : Navigator {
     fun hideLongitudeErrorText()
     fun getLongitudeInputText(): String
     fun getLatitudeInputText(): String
+    fun setCompassModeToNorth()
+    fun setCompassModeToCoordinates(latLng: LatLng)
 }

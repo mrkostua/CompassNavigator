@@ -1,9 +1,9 @@
 package com.example.simplecompassproject.ui.compass
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.os.Looper
 import android.view.animation.Animation
 import android.view.animation.RotateAnimation
 import androidx.appcompat.app.AppCompatActivity
@@ -12,11 +12,10 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import com.example.simplecompassproject.R
+import com.example.simplecompassproject.data.LatLng
 import com.example.simplecompassproject.databinding.ActivityCompassBinding
 import com.example.simplecompassproject.ui.navigateLatLng.NavigateLatLngDialog
 import com.example.simplecompassproject.util.ui.UiNavigator
-import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.location.*
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionDeniedResponse
@@ -29,18 +28,11 @@ import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.getViewModel
 import timber.log.Timber
 
-class CompassActivity : AppCompatActivity(), CompassNavigator, PermissionListener {
+class CompassActivity : AppCompatActivity(), CompassNavigator, PermissionListener,
+    NavigateLatLngDialog.OnNavigationChangedListener {
     private lateinit var mBinding: ActivityCompassBinding
     private lateinit var mViewModel: CompassViewModel
     private val mUiNavigator by inject<UiNavigator>()
-
-    //location
-    private lateinit var mFusedLocationClient: FusedLocationProviderClient
-    private var mSettingsClient: SettingsClient? = null
-    private var mLocationRequest: LocationRequest? = null
-    private var mLocationSettingsRequest: LocationSettingsRequest? = null
-    private var mLocationCallback: LocationCallback? = null
-    private var mIsListeningToLocaton = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,31 +47,36 @@ class CompassActivity : AppCompatActivity(), CompassNavigator, PermissionListene
         mBinding.executePendingBindings()
     }
 
-    private fun init() {
-        mIsListeningToLocaton = false
-        observeAzimuthChanges()
-        initLocation()
-    }
-
-
     override fun onResume() {
         super.onResume()
         mViewModel.setupCompass()
-        if (mIsListeningToLocaton) {
-            startListeningLocationUpdates()
+
+        val permissionState = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+        if (permissionState == PackageManager.PERMISSION_GRANTED) {
+            mViewModel.startListeningToLocation()
         }
     }
 
     override fun onPause() {
         super.onPause()
         mViewModel.stopListeningToSensors()
-        if (mIsListeningToLocaton) {
-            stopListeningLocationUpdates()
-        }
+        mViewModel.stopListeningToLocation()
+    }
+
+    //TODO nice comment section separations (some tool or styles)
+
+    override fun setCompassModeToCoordinates(latLng: LatLng) {
+        mViewModel.changeCompassModeToCoordinates(latLng)
+    }
+
+    override fun setCompassModeToNorth() {
+        mViewModel.changeCompassModeToNorth()
     }
 
     override fun showNavigateLatLngDialog() {
-        val navigationLatLngDialog = NavigateLatLngDialog()
+        val navigationLatLngDialog = NavigateLatLngDialog().apply {
+            mActivityCallback = this@CompassActivity
+        }
         if (!navigationLatLngDialog.isAdded && !navigationLatLngDialog.isVisible) {
             navigationLatLngDialog.show(supportFragmentManager, "")
         }
@@ -90,8 +87,9 @@ class CompassActivity : AppCompatActivity(), CompassNavigator, PermissionListene
         return permissionState == PackageManager.PERMISSION_GRANTED
     }
 
+    @SuppressLint("MissingPermission")
     override fun onPermissionGranted(response: PermissionGrantedResponse?) {
-        startListeningLocationUpdates()
+        mViewModel.startListeningToLocation() //TODO not working
         showNavigateLatLngDialog()
     }
 
@@ -116,12 +114,19 @@ class CompassActivity : AppCompatActivity(), CompassNavigator, PermissionListene
             .check()
     }
 
+    override fun showErrorLocationSetting() {
+        toast(R.string.compass_location_error_settings_inadequate)
+    }
+
+    private fun init() {
+        observeAzimuthChanges()
+    }
+
     private fun observeAzimuthChanges() {
         mViewModel.azimuthLiveData.observe(this, Observer(::animateCompassHandsTo))
     }
 
     private fun animateCompassHandsTo(azimuths: Pair<Float, Float>) {
-        Timber.d("animateCompassHandsTo to previousAzimuth ${azimuths.first} newAzimuth ${azimuths.second}")
         val animation = RotateAnimation(
             -azimuths.first,
             -azimuths.second,
@@ -136,72 +141,8 @@ class CompassActivity : AppCompatActivity(), CompassNavigator, PermissionListene
         mBinding.compassHandsIv.startAnimation(animation)
     }
 
-    private fun initLocation() {
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-        mSettingsClient = LocationServices.getSettingsClient(this)
-        mLocationCallback = object : LocationCallback() {
-            override fun onLocationResult(p0: LocationResult?) {
-                super.onLocationResult(p0)
-                updateCurrentLocationView()
-                //TODO update UI send data compassUtil...
-            }
-        }
-        mLocationRequest = LocationRequest().apply {
-            //TODO create const for those values and move all this logic outside of activity how ???
-            interval = 10000
-            fastestInterval = 5000
-            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-
-            val builder = LocationSettingsRequest.Builder()
-            builder.addLocationRequest(this)
-            mLocationSettingsRequest = builder.build()
-        }
+    private fun updateCurrentLocationTv() { //TODO create textView and handle visibility
     }
-
-    private fun updateCurrentLocationView() {
-        /*      if (mCurrentLocation != null) {
-                  txtLocationResult.setText(
-                      "Lat: " + mCurrentLocation.getLatitude() + ", " +
-                              "Lng: " + mCurrentLocation.getLongitude()
-                  );
-
-                  // giving a blink animation on TextView
-                  txtLocationResult.setAlpha(0);
-                  txtLocationResult.animate().alpha(1).setDuration(300);*/
-    }
-
-    override fun startListeningLocationUpdates() {
-        mSettingsClient?.let {
-            it.checkLocationSettings(mLocationSettingsRequest)
-                .addOnSuccessListener {
-                    mIsListeningToLocaton = true
-                    val permState = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                    if (permState == PackageManager.PERMISSION_GRANTED) {
-                        mFusedLocationClient.requestLocationUpdates(
-                            mLocationRequest,
-                            mLocationCallback,
-                            Looper.myLooper()
-                        )
-                    }
-                }
-                .addOnFailureListener { exception ->
-                    when ((exception as ApiException).statusCode) {
-                        LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE -> {
-                            Timber.e(exception, "Error in listening for location updates")
-                            toast(R.string.compass_location_error_settings_inadequate)
-                        }
-                        else -> Timber.e(exception, "Error in listening for location updates")
-                    }
-                }
-
-        }
-    }
-
-    fun stopListeningLocationUpdates() {
-        mIsListeningToLocaton = false
-        mFusedLocationClient.removeLocationUpdates(mLocationCallback)
-    }
-
 
     override fun back() {
         onBackPressed()

@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import com.example.simplecompassproject.R
+import com.example.simplecompassproject.data.LatLng
 import com.example.simplecompassproject.databinding.DialogNavigationLatLngBinding
 import com.example.simplecompassproject.util.extentions.addTextWatcher
 import com.example.simplecompassproject.util.ui.BaseDialogFragment
@@ -20,6 +21,8 @@ import org.koin.androidx.viewmodel.ext.android.getViewModel
 
 class NavigateLatLngDialog : BaseDialogFragment(), NavigateLatLngNavigator {
     override var items: Array<TextInputEditText> = emptyArray()
+    internal lateinit var mActivityCallback: OnNavigationChangedListener
+
     private lateinit var mBinding: DialogNavigationLatLngBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -78,10 +81,25 @@ class NavigateLatLngDialog : BaseDialogFragment(), NavigateLatLngNavigator {
         onBack()
     }
 
+    override fun setCompassModeToNorth() {
+        mActivityCallback.setCompassModeToNorth()
+        dismiss()
+    }
+
+    override fun setCompassModeToCoordinates(latLng: LatLng) { //TODO rename
+        mActivityCallback.setCompassModeToCoordinates(latLng)
+        dismiss()
+    }
+
     private fun initInputViewsTextWatchers() {
         with(mBinding) {
             navigateLatitudeTied.addTextWatcher(afterChanged = { viewModel?.validateLatitudeInput(it.toString()) })
             navigateLongitudeTied.addTextWatcher(afterChanged = { viewModel?.validateLongitudeInput(it.toString()) })
         }
+    }
+
+    interface OnNavigationChangedListener {
+        fun setCompassModeToNorth()
+        fun setCompassModeToCoordinates(latLng: LatLng)
     }
 }

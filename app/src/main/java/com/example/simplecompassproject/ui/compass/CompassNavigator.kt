@@ -9,5 +9,5 @@ interface CompassNavigator : Navigator {
     fun showNavigateLatLngDialog()
     fun askForLocationPermission()
     fun checkLocationPermissionGranted(): Boolean
-    fun startListeningLocationUpdates()
+    fun showErrorLocationSetting()
 }

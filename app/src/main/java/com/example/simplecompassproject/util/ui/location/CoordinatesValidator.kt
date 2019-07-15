@@ -1,4 +1,4 @@
-package com.example.simplecompassproject.util
+package com.example.simplecompassproject.util.ui.location
 
 /**
  * Created by Kostiantyn Prysiazhnyi on 7/15/2019.
