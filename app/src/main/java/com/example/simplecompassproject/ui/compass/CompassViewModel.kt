@@ -21,7 +21,7 @@ class CompassViewModel(private val compassUtil: CompassUtil) : BaseViewModel<Com
 
     fun setupCompass() {
         compassUtil.listener = this
-        compassUtil.startListeningSensors()
+        compassUtil.startListeningSensorsToNorth()
     }
 
     fun stopListeningToSensors() {

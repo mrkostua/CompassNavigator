@@ -47,4 +47,7 @@ dependencies {
 
     // Android Architecture Components - ViewModel and LiveData
     implementation "android.arch.lifecycle:extensions:1.1.1"
+
+    // Dexter - runtime permission handler
+    implementation 'com.karumi:dexter:5.0.0'
 }

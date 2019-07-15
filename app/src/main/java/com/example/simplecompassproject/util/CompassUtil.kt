@@ -5,7 +5,11 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import com.example.simplecompassproject.data.LatLng
 import timber.log.Timber
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
 
 /**
  * Created by Kostiantyn Prysiazhnyi on 7/14/2019.
@@ -24,9 +28,11 @@ class CompassUtil(context: Context) : SensorEventListener, ICompassUtil {
     private val mRotationMatrix = FloatArray(9)
     private val mInclinationMatrix = FloatArray(9)
 
-    private var azimuth = 0f
+    private var mAzimuth: Double = 0.0
+    private var mLatLngCoordinates: LatLng? = null
 
-    override fun startListeningSensors() {
+    override fun startListeningSensorsToNorth() {
+        mLatLngCoordinates = null
         val accelerometerSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         val magneticFieldSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
 
@@ -42,6 +48,11 @@ class CompassUtil(context: Context) : SensorEventListener, ICompassUtil {
                 SensorManager.SENSOR_DELAY_UI
             )
         }
+    }
+
+    override fun startListeningSensorsToCoordinates(latLong: LatLng) {
+        mLatLngCoordinates = latLong
+        startListeningSensorsToNorth()
     }
 
     /**
@@ -70,14 +81,39 @@ class CompassUtil(context: Context) : SensorEventListener, ICompassUtil {
             Timber.d("onSensorChanged + isRotationMatrixReady $isRotationMatrixReady")
             if (isRotationMatrixReady) {
                 SensorManager.getOrientation(mRotationMatrix, mOrientationsResultMatrix)
-                azimuth = Math.toDegrees(mOrientationsResultMatrix[0].toDouble()).toFloat()
-                azimuth = (azimuth + 360) % 360
-                listener?.newAzimuthResponse(azimuth)
+                mLatLngCoordinates.let {
+                    when (it) {
+                        null -> listener?.newAzimuthResponse(
+                            calculateNorthAzimuth(mOrientationsResultMatrix[0])
+                        )
+                        else -> listener?.newAzimuthResponse(
+                            calculateCoordinatesAzimuth(mOrientationsResultMatrix[0], it.latitude, it.longitude)
+                        )
+                    }
+                }
             }
         }
     }
 
     override fun onAccuracyChanged(p0: Sensor?, p1: Int) = Unit
+
+
+    private fun calculateNorthAzimuth(orientationAzimuth: Float): Double {
+        mAzimuth = Math.toDegrees(orientationAzimuth.toDouble())
+        mAzimuth = (mAzimuth + 360) % 360
+        return mAzimuth
+    }
+
+    private fun calculateCoordinatesAzimuth(
+        orientationAzimuth: Float,
+        destinationLat: Double,
+        destionaLng: Double
+    ): Double {
+        mAzimuth = Math.toDegrees(orientationAzimuth.toDouble())
+        mAzimuth = (mAzimuth + 360) % 360
+        mAzimuth -= calculateBearing()
+        return mAzimuth
+    }
 
     /**
      * Measures the ambient magnetic field in the X, Y and Z axis.
@@ -103,6 +139,18 @@ class CompassUtil(context: Context) : SensorEventListener, ICompassUtil {
         mGravityVector[0] = ALPHA * mGravityVector[0] + (1 - ALPHA) * xAxisAcceleration
         mGravityVector[1] = ALPHA * mGravityVector[1] + (1 - ALPHA) * yAxisAcceleration
         mGravityVector[2] = ALPHA * mGravityVector[2] + (1 - ALPHA) * zAxisAcceleration
+    }
+
+    private fun calculateBearing(startLat: Double, startLng: Double, endLat: Double, endLng: Double): Double {
+        val longitudesDifference = Math.toRadians(endLng - startLng)
+        val startLatRadians = Math.toRadians(startLat)
+        val endLatRadians = Math.toRadians(endLat)
+
+        val x = cos(startLatRadians) * sin(endLatRadians) -
+                (sin(startLatRadians) * cos(endLatRadians) * cos(longitudesDifference))
+
+        val y = sin(longitudesDifference) * cos(endLatRadians)
+        return Math.toDegrees(atan2(y, x) + 360) % 360
     }
 
     interface CompassListener {
