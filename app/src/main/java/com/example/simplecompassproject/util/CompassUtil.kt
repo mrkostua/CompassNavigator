@@ -83,11 +83,13 @@ class CompassUtil(context: Context) : SensorEventListener, ICompassUtil {
                 SensorManager.getOrientation(mRotationMatrix, mOrientationsResultMatrix)
                 mLatLngCoordinates.let {
                     when (it) {
-                        null -> listener?.newAzimuthResponse(
-                            calculateNorthAzimuth(mOrientationsResultMatrix[0])
-                        )
+                        null -> listener?.newAzimuthResponse(calculateNorthAzimuth(mOrientationsResultMatrix[0]).toFloat())
                         else -> listener?.newAzimuthResponse(
-                            calculateCoordinatesAzimuth(mOrientationsResultMatrix[0], it.latitude, it.longitude)
+                            calculateCoordinatesAzimuth(
+                                mOrientationsResultMatrix[0],
+                                it.latitude,
+                                it.longitude
+                            ).toFloat()
                         )
                     }
                 }
@@ -111,7 +113,7 @@ class CompassUtil(context: Context) : SensorEventListener, ICompassUtil {
     ): Double {
         mAzimuth = Math.toDegrees(orientationAzimuth.toDouble())
         mAzimuth = (mAzimuth + 360) % 360
-        mAzimuth -= calculateBearing()
+        //mAzimuth -= calculateBearing() TODO not implemented
         return mAzimuth
     }
 

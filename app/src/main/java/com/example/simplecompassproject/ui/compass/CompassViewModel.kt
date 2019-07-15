@@ -30,6 +30,11 @@ class CompassViewModel(private val compassUtil: CompassUtil) : BaseViewModel<Com
 
     @UiThread
     fun showNavigateLatLngDialog() {
-        navigator.showNavigateLatLngDialog()
+        if (navigator.checkLocationPermissionGranted()) {
+            navigator.showNavigateLatLngDialog()
+            navigator.startListeningLocationUpdates()
+        } else {
+            navigator.askForLocationPermission()
+        }
     }
 }

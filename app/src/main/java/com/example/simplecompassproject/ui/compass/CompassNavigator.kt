@@ -7,4 +7,7 @@ import com.example.simplecompassproject.util.ui.Navigator
  */
 interface CompassNavigator : Navigator {
     fun showNavigateLatLngDialog()
+    fun askForLocationPermission()
+    fun checkLocationPermissionGranted(): Boolean
+    fun startListeningLocationUpdates()
 }

@@ -3,11 +3,14 @@
 
     <!--Common-->
     <string name="back">Back</string>
+    <string name="location_permissions_description">Without location permission we are not able to navigate.</string>
+    <string name="settings">Settings</string>
 
     <!--Compass-->
     <string name="compass_dial" translatable="false">Compass Dial</string>
     <string name="compass_hands" translatable="false">Compass Hands</string>
     <string name="compass_navigate_to">Navigate to</string>
+    <string name="compass_location_error_settings_inadequate">Location settings are inadequate. Fix in Settings</string>
 
     <!--Navigate to lat lng-->
     <string name="navigate_latitude_hint_text">latitude</string>

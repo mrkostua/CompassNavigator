@@ -3,6 +3,7 @@ package com.example.simplecompassproject.di
 import com.example.simplecompassproject.App
 import com.example.simplecompassproject.util.CompassUtil
 import com.example.simplecompassproject.util.CoordinatesValidator
+import com.example.simplecompassproject.util.ui.UiNavigator
 import org.koin.dsl.module.module
 
 /**
@@ -16,6 +17,7 @@ fun appModule(app: App) = module {
 
 fun commonsModule() = module {
     factory { CoordinatesValidator() }
+    single { UiNavigator() }
 }
 
 fun allModules(app: App) = listOf(
