@@ -15,9 +15,6 @@ import timber.log.Timber
 class CompassActivity : AppCompatActivity(), CompassNavigator {
     private lateinit var binding: ActivityCompassBinding
     private lateinit var viewModel: CompassViewModel
-    private val navigationLatLngDialog by lazy {
-        NavigateLatLngDialog()
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,6 +41,7 @@ class CompassActivity : AppCompatActivity(), CompassNavigator {
     }
 
     override fun showNavigateLatLngDialog() {
+        val navigationLatLngDialog = NavigateLatLngDialog()
         if (!navigationLatLngDialog.isAdded && !navigationLatLngDialog.isVisible) {
             navigationLatLngDialog.show(supportFragmentManager, "")
         }

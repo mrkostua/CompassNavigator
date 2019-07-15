@@ -1,4 +1,4 @@
-package com.example.simplecompassproject.util.ui
+package com.example.simplecompassproject.util.extentions
 
 import android.app.Activity
 import android.content.Context

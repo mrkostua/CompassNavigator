@@ -11,5 +11,5 @@ import org.koin.dsl.module.module
 
 val viewModules = module {
     viewModel { CompassViewModel(get()) }
-    viewModel { NavigateLatLngViewModel() }
+    viewModel { NavigateLatLngViewModel(get()) }
 }

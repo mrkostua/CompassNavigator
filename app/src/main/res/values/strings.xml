@@ -14,4 +14,6 @@
     <string name="navigate_longitude_hint_text">longitude</string>
     <string name="navigate_to_north">to north</string>
     <string name="navigate_accept_button_text">accept and navigate</string>
+    <string name="navigate_error_empty_input">Can\'t be empty</string>
+    <string name="navigate_error_wrong_input">Wrong input</string>
 </resources>

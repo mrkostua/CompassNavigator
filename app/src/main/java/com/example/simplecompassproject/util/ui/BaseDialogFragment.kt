@@ -2,7 +2,9 @@ package com.example.simplecompassproject.util.ui
 
 import android.os.Bundle
 import android.view.KeyEvent
-import android.view.View import androidx.fragment.app.DialogFragment
+import android.view.View
+import androidx.fragment.app.DialogFragment
+import com.example.simplecompassproject.util.extentions.hideKeyboardFrom
 import com.google.android.material.textfield.TextInputEditText
 
 /**
@@ -11,6 +13,11 @@ import com.google.android.material.textfield.TextInputEditText
 abstract class BaseDialogFragment : DialogFragment() {
     abstract var items: Array<TextInputEditText>
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setStyle(STYLE_NO_TITLE, android.R.style.Theme_DeviceDefault_Light_Dialog_NoActionBar_MinWidth)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         handleBackClick()
@@ -18,10 +25,11 @@ abstract class BaseDialogFragment : DialogFragment() {
     }
 
     fun onBack() {
+        hideKeyboardAndCursors()
         dismiss()
     }
 
-    fun hideKeyBoardAndCursors() {
+    fun hideKeyboardAndCursors() {
         items.forEach {
             it.isFocusable = false
         }

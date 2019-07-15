@@ -54,7 +54,6 @@ class CompassUtil(context: Context) : SensorEventListener, ICompassUtil {
 
     override fun onSensorChanged(event: SensorEvent) {
         synchronized(this) {
-            //TODO test it
             when (event.sensor.type) {
                 Sensor.TYPE_MAGNETIC_FIELD -> calculateMagneticField(event.values)
                 Sensor.TYPE_ACCELEROMETER -> calculateAcceleration(event.values)
