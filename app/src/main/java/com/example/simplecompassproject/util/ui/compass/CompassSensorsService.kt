@@ -56,7 +56,7 @@ class CompassSensorsService(context: Context) : SensorEventListener,
         mSensorManager.unregisterListener(this)
     }
 
-    override fun calculateCoordinatesAzimuth(
+    override fun calculateCoordinatesAzFromNorthAz(
             azimuth: Float,
             startLocation: Location,
             destinationLocation: Location

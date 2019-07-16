@@ -125,7 +125,7 @@ class CompassViewModel(private val compassUtil: ICompassSensorsService, private 
     }
     //endregion
 
-    private fun calculateCoordinatesAzimuth(northAzimuth: Float) = compassUtil.calculateCoordinatesAzimuth(
+    private fun calculateCoordinatesAzimuth(northAzimuth: Float) = compassUtil.calculateCoordinatesAzFromNorthAz(
             northAzimuth,
             mCurrentLocation,
             mDestinationLocation
