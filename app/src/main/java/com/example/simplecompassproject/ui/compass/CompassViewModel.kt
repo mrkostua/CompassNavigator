@@ -16,7 +16,7 @@ import timber.log.Timber
  */
 
 class CompassViewModel(private val compassUtil: ICompassSensorsService, private val locationUtil: ILocationService) :
-    BaseViewModel<CompassNavigator>(), CompassSensorsService.CompassListener, LocationService.LocationServiceListener {
+        BaseViewModel<CompassNavigator>(), CompassSensorsService.CompassListener, LocationService.LocationServiceListener {
     val azimuthLd = MutableLiveData<Pair<Float, Float>>()
     val destinationLocationLd = MutableLiveData<String>()
 
@@ -77,10 +77,7 @@ class CompassViewModel(private val compassUtil: ICompassSensorsService, private 
         }
         mCurrentLocation = location
         navigator.setCurrentLocationText(locationUtil.convertLocationToString(location))
-
-        val newDistance = mCurrentLocation.distanceTo(mDestinationLocation) / 1000
-        navigator.showDistanceToDestinationText(newDistance, checkIfDistanceDecreases(newDistance))
-        mPreviousDistance = newDistance
+        updateDistanceToDestinationViews(location)
     }
 
     fun startListeningToLocation() {
@@ -104,6 +101,12 @@ class CompassViewModel(private val compassUtil: ICompassSensorsService, private 
     private fun checkIfDistanceDecreases(currentDistance: Float): Boolean {
         return currentDistance < mPreviousDistance
     }
+
+    private fun updateDistanceToDestinationViews(location: Location) {
+        val newDistance = location.distanceTo(mDestinationLocation) / 1000
+        navigator.showDistanceToDestinationText(newDistance, checkIfDistanceDecreases(newDistance))
+        mPreviousDistance = newDistance
+    }
     //endregion
 
     //region change compassMode
@@ -123,8 +126,8 @@ class CompassViewModel(private val compassUtil: ICompassSensorsService, private 
     //endregion
 
     private fun calculateCoordinatesAzimuth(northAzimuth: Float) = compassUtil.calculateCoordinatesAzimuth(
-        northAzimuth,
-        mCurrentLocation,
-        mDestinationLocation
+            northAzimuth,
+            mCurrentLocation,
+            mDestinationLocation
     )
 }
