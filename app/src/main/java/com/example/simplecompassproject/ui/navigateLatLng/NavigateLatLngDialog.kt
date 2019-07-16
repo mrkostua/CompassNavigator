@@ -47,6 +47,7 @@ class NavigateLatLngDialog : BaseDialogFragment(), NavigateLatLngNavigator {
         initInputViewsTextWatchers()
     }
 
+    //region viewModel navigation
     override fun finishFillingInputs() = hideKeyboardAndCursors()
 
     override fun getLatitudeInputText() = mBinding.navigateLatitudeTied.text?.toString() ?: ""
@@ -77,10 +78,6 @@ class NavigateLatLngDialog : BaseDialogFragment(), NavigateLatLngNavigator {
         mBinding.navigateLongitudeTil.error = null
     }
 
-    override fun back() {
-        onBack()
-    }
-
     override fun setCompassModeNorth() {
         mActivityCallback.setCompassModeNorth()
         dismiss()
@@ -94,13 +91,20 @@ class NavigateLatLngDialog : BaseDialogFragment(), NavigateLatLngNavigator {
     override fun showErrorParsingLatLng() {
         activity?.longToast(R.string.navigate_error_parsing_lat_lng)
     }
+    //endregion
 
+    override fun back() {
+        onBack()
+    }
+
+    //region init
     private fun initInputViewsTextWatchers() {
         with(mBinding) {
             navigateLatitudeTied.addTextWatcher(afterChanged = { viewModel?.validateLatitudeInput(it.toString()) })
             navigateLongitudeTied.addTextWatcher(afterChanged = { viewModel?.validateLongitudeInput(it.toString()) })
         }
     }
+    //endregion
 
     interface OnNavigationChangedListener {
         fun setCompassModeNorth()

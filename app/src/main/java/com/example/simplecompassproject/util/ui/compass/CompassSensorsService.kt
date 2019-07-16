@@ -10,35 +10,38 @@ import android.location.Location
 /**
  * Created by Kostiantyn Prysiazhnyi on 7/14/2019.
  */
-class CompassUtil(context: Context) : SensorEventListener,
-        ICompassUtil {
+class CompassSensorsService(context: Context) : SensorEventListener,
+        ICompassSensorsService {
     companion object {
         const val ALPHA = 0.97f
     }
 
-    override var listener: CompassListener? = null
-
+    private var mListener: CompassListener? = null
     private val mSensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+
+    //region azimuth calculation variables
     private val mOrientationsResultMatrix = FloatArray(3)
     private val mGravityVector = FloatArray(3)
     private val mGeomagneticVector = FloatArray(3)
     private val mRotationMatrix = FloatArray(9)
     private val mInclinationMatrix = FloatArray(9)
-
     private var mAzimuth: Double = 0.0
+    //endregion
 
-    override fun startListeningSensors() {
+    //region ICompassSensorsService
+    override fun startListeningSensors(listener: CompassListener) {
+        mListener = listener
         val accelerometerSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         val magneticFieldSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
 
         mSensorManager.run {
             registerListener(
-                    this@CompassUtil,
+                    this@CompassSensorsService,
                     accelerometerSensor,
                     SensorManager.SENSOR_DELAY_UI
             )
             registerListener(
-                    this@CompassUtil,
+                    this@CompassSensorsService,
                     magneticFieldSensor,
                     SensorManager.SENSOR_DELAY_UI
             )
@@ -58,8 +61,10 @@ class CompassUtil(context: Context) : SensorEventListener,
             startLocation: Location,
             destinationLocation: Location
     ): Float = (azimuth - startLocation.bearingTo(destinationLocation))
+    //endregion
 
 
+    //region SensorEventListener
     override fun onSensorChanged(event: SensorEvent) {
         synchronized(this) {
             when (event.sensor.type) {
@@ -76,12 +81,13 @@ class CompassUtil(context: Context) : SensorEventListener,
             )
             if (isRotationMatrixReady) {
                 SensorManager.getOrientation(mRotationMatrix, mOrientationsResultMatrix)
-                listener?.newAzimuthResponse(calculateNorthAzimuth(mOrientationsResultMatrix[0]).toFloat())
+                mListener?.onCompassSensorsUpdate(calculateNorthAzimuth(mOrientationsResultMatrix[0]).toFloat())
             }
         }
     }
 
     override fun onAccuracyChanged(p0: Sensor?, p1: Int) = Unit
+    //endregion
 
 
     private fun calculateNorthAzimuth(orientationAzimuth: Float): Double {
@@ -117,6 +123,6 @@ class CompassUtil(context: Context) : SensorEventListener,
     }
 
     interface CompassListener {
-        fun newAzimuthResponse(azimuth: Float)
+        fun onCompassSensorsUpdate(azimuth: Float)
     }
 }

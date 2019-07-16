@@ -2,6 +2,7 @@ package com.example.simplecompassproject.ui.navigateLatLng
 
 import android.location.Location
 import android.location.LocationManager
+import androidx.annotation.UiThread
 import com.example.simplecompassproject.util.ui.BaseViewModel
 import com.example.simplecompassproject.util.ui.location.CoordinatesValidator
 import timber.log.Timber
@@ -11,6 +12,8 @@ import timber.log.Timber
  */
 class NavigateLatLngViewModel(private val validator: CoordinatesValidator) : BaseViewModel<NavigateLatLngNavigator>() {
 
+    //region view
+    @UiThread
     fun acceptAndNavigate() {
         Timber.i("acceptAndNavigate")
         val latitude = navigator.getLatitudeInputText()
@@ -30,11 +33,19 @@ class NavigateLatLngViewModel(private val validator: CoordinatesValidator) : Bas
         }
     }
 
+    @UiThread
     fun navigateToNorth() {
         navigator.finishFillingInputs()
         navigator.setCompassModeNorth()
     }
 
+    @UiThread
+    fun closeDialog() {
+        navigator.back()
+    }
+    //endregion
+
+    //region validation
     fun validateLatitudeInput(latitude: String): Boolean {
         return when {
             validator.isEmpty(latitude) -> {
@@ -68,8 +79,5 @@ class NavigateLatLngViewModel(private val validator: CoordinatesValidator) : Bas
             }
         }
     }
-
-    fun closeDialog() {
-        navigator.back()
-    }
+    //endregion
 }

@@ -19,7 +19,7 @@
         <ImageView
             android:id="@+id/compassDialIv"
             android:layout_width="wrap_content"
-            android:layout_height="420dp"
+            android:layout_height="@dimen/compass_dial_height"
             android:layout_marginBottom="@dimen/margin_l"
             android:contentDescription="@string/compass_dial"
             android:padding="@dimen/margin_l"
@@ -31,7 +31,7 @@
         <ImageView
             android:id="@+id/compassHandsIv"
             android:layout_width="wrap_content"
-            android:layout_height="240dp"
+            android:layout_height="@dimen/compass_hands_height"
             android:layout_centerInParent="true"
             android:layout_marginStart="@dimen/margin_ml"
             android:contentDescription="@string/compass_hands"

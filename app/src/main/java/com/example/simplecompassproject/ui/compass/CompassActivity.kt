@@ -30,11 +30,10 @@ import org.koin.androidx.viewmodel.ext.android.getViewModel
 import timber.log.Timber
 
 class CompassActivity : AppCompatActivity(), CompassNavigator, PermissionListener,
-        NavigateLatLngDialog.OnNavigationChangedListener {
+    NavigateLatLngDialog.OnNavigationChangedListener {
     private lateinit var mBinding: ActivityCompassBinding
     private lateinit var mViewModel: CompassViewModel
     private val mUiNavigator by inject<UiNavigator>()
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,23 +47,19 @@ class CompassActivity : AppCompatActivity(), CompassNavigator, PermissionListene
         mBinding.executePendingBindings()
     }
 
-    override fun onResume() { //TODO also save state in onSaveInstance, so in on resume in case compassMode Yes in case person lock the phone and unlock he still wan't to follow same destination fix it
-        toast("onResume")
-        Timber.i("onResume")
+    override fun onResume() {
         super.onResume()
         mViewModel.startCompassSensors()
         checkPermissionAndListenLocation()
     }
 
     override fun onPause() {
-        Timber.i("onPause")
         super.onPause()
         mViewModel.stopCompassSensors()
         mViewModel.stopListeningToLocation()
     }
 
-    //TODO nice  section separations with comments sections (some tool or styles)
-
+    //region NavigationLatLngDialog callbacks
     override fun setCompassModeCoordinates(location: Location) {
         mViewModel.changeCompassModeToCoordinates(location)
     }
@@ -72,21 +67,9 @@ class CompassActivity : AppCompatActivity(), CompassNavigator, PermissionListene
     override fun setCompassModeNorth() {
         mViewModel.changeCompassModeToNorth()
     }
+    //endregion
 
-    override fun showNavigateLatLngDialog() {
-        val navigationLatLngDialog = NavigateLatLngDialog().apply {
-            mActivityCallback = this@CompassActivity
-        }
-        if (!navigationLatLngDialog.isAdded && !navigationLatLngDialog.isVisible) {
-            navigationLatLngDialog.show(supportFragmentManager, "")
-        }
-    }
-
-    override fun checkLocationPermission(): Boolean {
-        val permissionState = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-        return permissionState == PackageManager.PERMISSION_GRANTED
-    }
-
+    //region permission listener callbacks
     @SuppressLint("MissingPermission")
     override fun onPermissionGranted(response: PermissionGrantedResponse?) {
         showNavigateLatLngDialog()
@@ -103,14 +86,30 @@ class CompassActivity : AppCompatActivity(), CompassNavigator, PermissionListene
             it.setActionTextColor(ContextCompat.getColor(this, R.color.colorAccent))
         }
     }
+    //endregion
+
+    //region viewModel navigation
+    override fun showNavigateLatLngDialog() {
+        val navigationLatLngDialog = NavigateLatLngDialog().apply {
+            mActivityCallback = this@CompassActivity
+        }
+        if (!navigationLatLngDialog.isAdded && !navigationLatLngDialog.isVisible) {
+            navigationLatLngDialog.show(supportFragmentManager, "")
+        }
+    }
+
+    override fun checkLocationPermission(): Boolean {
+        val permissionState = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+        return permissionState == PackageManager.PERMISSION_GRANTED
+    }
 
     override fun askForLocationPermission() {
         Dexter.withActivity(this)
-                .withPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-                .withListener(this)
-                .onSameThread()
-                .withErrorListener { Timber.e("Dexter permission check error $it") }
-                .check()
+            .withPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+            .withListener(this)
+            .onSameThread()
+            .withErrorListener { Timber.e("Dexter permission check error $it") }
+            .check()
     }
 
     override fun showErrorLocationSetting() {
@@ -122,7 +121,6 @@ class CompassActivity : AppCompatActivity(), CompassNavigator, PermissionListene
             setTextColor(ContextCompat.getColor(this@CompassActivity, R.color.colorAccent))
             text = location
         }
-
     }
 
     override fun showLocationStateNotRead() {
@@ -134,8 +132,12 @@ class CompassActivity : AppCompatActivity(), CompassNavigator, PermissionListene
 
     override fun showDistanceToDestinationText(distance: Float, isGettingCloser: Boolean) {
         mBinding.compassDistanceToDestinationTv.apply {
-            setTextColor(ContextCompat.getColor(this@CompassActivity,
-                    if (isGettingCloser) R.color.colorAccent else R.color.red))
+            setTextColor(
+                ContextCompat.getColor(
+                    this@CompassActivity,
+                    if (isGettingCloser) R.color.colorAccent else R.color.red
+                )
+            )
 
             text = getString(R.string.compass_distance_to_destination, distance)
         }
@@ -155,7 +157,9 @@ class CompassActivity : AppCompatActivity(), CompassNavigator, PermissionListene
             mBinding.compassNavigationModeViewsG.visibility = View.GONE
         }
     }
+    //endregion
 
+    //region init
     private fun init() {
         observeAzimuthChanges()
     }
@@ -163,14 +167,15 @@ class CompassActivity : AppCompatActivity(), CompassNavigator, PermissionListene
     private fun observeAzimuthChanges() {
         mViewModel.azimuthLd.observe(this, Observer(::animateCompassHandsTo))
     }
+    //endregion
 
     private fun animateCompassHandsTo(azimuths: Pair<Float, Float>) {
         val animation = RotateAnimation(
-                -azimuths.first,
-                -azimuths.second,
-                Animation.RELATIVE_TO_SELF,
-                0.5f, Animation.RELATIVE_TO_SELF,
-                0.5f
+            -azimuths.first,
+            -azimuths.second,
+            Animation.RELATIVE_TO_SELF,
+            0.5f, Animation.RELATIVE_TO_SELF,
+            0.5f
         ).apply {
             duration = 500
             repeatCount = 0

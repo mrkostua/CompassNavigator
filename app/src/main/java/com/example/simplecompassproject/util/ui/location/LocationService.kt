@@ -38,6 +38,7 @@ class LocationService(private val context: Context) : LocationCallback(), ILocat
         initLocationClient()
     }
 
+    //region LocationCallback
     override fun onLocationResult(locationResult: LocationResult?) {
         super.onLocationResult(locationResult)
         Timber.i("onLocationResult ${locationResult?.lastLocation?.latitude} + ${locationResult?.lastLocation?.longitude}")
@@ -45,7 +46,9 @@ class LocationService(private val context: Context) : LocationCallback(), ILocat
             mListener?.onLocationUpdates(it)
         }
     }
+    //endregion
 
+    //region ILocationService
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     override fun startLocationUpdates(listener: LocationServiceListener) {
         if (mIsLocationActive.not()) {
@@ -68,15 +71,14 @@ class LocationService(private val context: Context) : LocationCallback(), ILocat
     override fun convertLocationToString(loc: Location): String {
         return Location.convert(loc.latitude, Location.FORMAT_DEGREES) + ", " + Location.convert(loc.longitude, Location.FORMAT_DEGREES)
     }
+    //endregion
 
     private fun initLocationClient() {
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
         mSettingsClient = LocationServices.getSettingsClient(context)
         mLocationRequest = LocationRequest().apply {
-            interval =
-                    UPDATE_INTERVAL_IN_MILLISECONDS
-            fastestInterval =
-                    FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS
+            interval = UPDATE_INTERVAL_IN_MILLISECONDS
+            fastestInterval = FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         }
         mLocationSettingsRequest = LocationSettingsRequest.Builder()
