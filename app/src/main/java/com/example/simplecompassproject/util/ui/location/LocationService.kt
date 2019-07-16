@@ -31,7 +31,7 @@ class LocationService(private val context: Context) : LocationCallback(), ILocat
     private lateinit var mLocationSettingsRequest: LocationSettingsRequest
     private val mLocationCallback: LocationCallback = this
     private var mIsLocationActive = false
-    private var currentLocation = LatLng(0.0, 0.0)
+    private var lastKnownLocation = LatLng(0.0, 0.0)
 
     init {
         mIsLocationActive = false
@@ -41,9 +41,9 @@ class LocationService(private val context: Context) : LocationCallback(), ILocat
     override fun onLocationResult(locationResult: LocationResult?) {
         super.onLocationResult(locationResult)
         locationResult?.lastLocation?.let {
-            currentLocation.latitude = it.latitude
-            currentLocation.longitude = it.longitude
-            listener?.onLocationUpdates(currentLocation)
+            lastKnownLocation.latitude = it.latitude
+            lastKnownLocation.longitude = it.longitude
+            listener?.onLocationUpdates(lastKnownLocation)
         }
     }
 
@@ -65,36 +65,36 @@ class LocationService(private val context: Context) : LocationCallback(), ILocat
         mSettingsClient = LocationServices.getSettingsClient(context)
         mLocationRequest = LocationRequest().apply {
             interval =
-                UPDATE_INTERVAL_IN_MILLISECONDS
+                    UPDATE_INTERVAL_IN_MILLISECONDS
             fastestInterval =
-                FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS
+                    FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         }
         mLocationSettingsRequest = LocationSettingsRequest.Builder()
-            .addLocationRequest(mLocationRequest)
-            .build()
+                .addLocationRequest(mLocationRequest)
+                .build()
     }
 
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     private fun startListeningLocationUpdates() {
         mSettingsClient.checkLocationSettings(mLocationSettingsRequest)
-            .addOnSuccessListener {
-                mIsLocationActive = true
-                mFusedLocationClient.requestLocationUpdates(
-                    mLocationRequest,
-                    mLocationCallback,
-                    Looper.myLooper() //TODO read about a looper ?
-                )
-            }
-            .addOnFailureListener { exception ->
-                when ((exception as ApiException).statusCode) {
-                    LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE -> {
-                        Timber.e(exception, "Error in listening for location updates")
-                        listener?.locationListenerFailure()
-                    }
-                    else -> Timber.e(exception, "Error in listening for location updates")
+                .addOnSuccessListener {
+                    mIsLocationActive = true
+                    mFusedLocationClient.requestLocationUpdates(
+                            mLocationRequest,
+                            mLocationCallback,
+                            Looper.myLooper()
+                    )
                 }
-            }
+                .addOnFailureListener { exception ->
+                    when ((exception as ApiException).statusCode) {
+                        LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE -> {
+                            Timber.e(exception, "Error in listening for location updates")
+                            listener?.locationListenerFailure()
+                        }
+                        else -> Timber.e(exception, "Error in listening for location updates")
+                    }
+                }
     }
 
     private fun stopListeningLocationUpdates() {

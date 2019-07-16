@@ -29,7 +29,7 @@ import org.koin.androidx.viewmodel.ext.android.getViewModel
 import timber.log.Timber
 
 class CompassActivity : AppCompatActivity(), CompassNavigator, PermissionListener,
-    NavigateLatLngDialog.OnNavigationChangedListener {
+        NavigateLatLngDialog.OnNavigationChangedListener {
     private lateinit var mBinding: ActivityCompassBinding
     private lateinit var mViewModel: CompassViewModel
     private val mUiNavigator by inject<UiNavigator>()
@@ -49,7 +49,7 @@ class CompassActivity : AppCompatActivity(), CompassNavigator, PermissionListene
 
     override fun onResume() {
         super.onResume()
-        mViewModel.setupCompass()
+        mViewModel.startCompassSensors()
 
         val permissionState = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
         if (permissionState == PackageManager.PERMISSION_GRANTED) {
@@ -59,17 +59,17 @@ class CompassActivity : AppCompatActivity(), CompassNavigator, PermissionListene
 
     override fun onPause() {
         super.onPause()
-        mViewModel.stopListeningToSensors()
+        mViewModel.stopCompassSensors()
         mViewModel.stopListeningToLocation()
     }
 
-    //TODO nice comment section separations (some tool or styles)
+    //TODO nice  section separations with comments sections (some tool or styles)
 
-    override fun setCompassModeToCoordinates(latLng: LatLng) {
+    override fun setCompassModeCoordinates(latLng: LatLng) {
         mViewModel.changeCompassModeToCoordinates(latLng)
     }
 
-    override fun setCompassModeToNorth() {
+    override fun setCompassModeNorth() {
         mViewModel.changeCompassModeToNorth()
     }
 
@@ -89,7 +89,6 @@ class CompassActivity : AppCompatActivity(), CompassNavigator, PermissionListene
 
     @SuppressLint("MissingPermission")
     override fun onPermissionGranted(response: PermissionGrantedResponse?) {
-        mViewModel.startListeningToLocation() //TODO not working
         showNavigateLatLngDialog()
     }
 
@@ -107,11 +106,11 @@ class CompassActivity : AppCompatActivity(), CompassNavigator, PermissionListene
 
     override fun askForLocationPermission() {
         Dexter.withActivity(this)
-            .withPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-            .withListener(this)
-            .onSameThread()
-            .withErrorListener { Timber.d("Dexter permission check error $it") }
-            .check()
+                .withPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+                .withListener(this)
+                .onSameThread()
+                .withErrorListener { Timber.d("Dexter permission check error $it") }
+                .check()
     }
 
     override fun showErrorLocationSetting() {
@@ -128,11 +127,11 @@ class CompassActivity : AppCompatActivity(), CompassNavigator, PermissionListene
 
     private fun animateCompassHandsTo(azimuths: Pair<Float, Float>) {
         val animation = RotateAnimation(
-            -azimuths.first,
-            -azimuths.second,
-            Animation.RELATIVE_TO_SELF,
-            0.5f, Animation.RELATIVE_TO_SELF,
-            0.5f
+                -azimuths.first,
+                -azimuths.second,
+                Animation.RELATIVE_TO_SELF,
+                0.5f, Animation.RELATIVE_TO_SELF,
+                0.5f
         ).apply {
             duration = 500
             repeatCount = 0
@@ -141,7 +140,8 @@ class CompassActivity : AppCompatActivity(), CompassNavigator, PermissionListene
         mBinding.compassHandsIv.startAnimation(animation)
     }
 
-    private fun updateCurrentLocationTv() { //TODO create textView and handle visibility
+    private fun updateCurrentLocationTv() {
+        //TODO create textView and handle visibility
     }
 
     override fun back() {

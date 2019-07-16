@@ -16,6 +16,7 @@ interface NavigateLatLngNavigator : Navigator {
     fun hideLongitudeErrorText()
     fun getLongitudeInputText(): String
     fun getLatitudeInputText(): String
-    fun setCompassModeToNorth()
-    fun setCompassModeToCoordinates(latLng: LatLng)
+    fun setCompassModeNorth()
+    fun setCompassModeCoordinates(latLng: LatLng)
+    fun showErrorParsingLatLng()
 }

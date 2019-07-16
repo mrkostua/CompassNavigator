@@ -13,6 +13,7 @@ import com.example.simplecompassproject.databinding.DialogNavigationLatLngBindin
 import com.example.simplecompassproject.util.extentions.addTextWatcher
 import com.example.simplecompassproject.util.ui.BaseDialogFragment
 import com.google.android.material.textfield.TextInputEditText
+import org.jetbrains.anko.longToast
 import org.koin.androidx.viewmodel.ext.android.getViewModel
 
 /**
@@ -36,7 +37,6 @@ class NavigateLatLngDialog : BaseDialogFragment(), NavigateLatLngNavigator {
             items = arrayOf(navigateLatitudeTied, navigateLongitudeTied)
             executePendingBindings()
         }
-
         return mBinding.root
     }
 
@@ -81,14 +81,18 @@ class NavigateLatLngDialog : BaseDialogFragment(), NavigateLatLngNavigator {
         onBack()
     }
 
-    override fun setCompassModeToNorth() {
-        mActivityCallback.setCompassModeToNorth()
+    override fun setCompassModeNorth() {
+        mActivityCallback.setCompassModeNorth()
         dismiss()
     }
 
-    override fun setCompassModeToCoordinates(latLng: LatLng) { //TODO rename
-        mActivityCallback.setCompassModeToCoordinates(latLng)
+    override fun setCompassModeCoordinates(latLng: LatLng) {
+        mActivityCallback.setCompassModeCoordinates(latLng)
         dismiss()
+    }
+
+    override fun showErrorParsingLatLng() {
+        activity?.longToast(R.string.navigate_error_parsing_lat_lng)
     }
 
     private fun initInputViewsTextWatchers() {
@@ -99,7 +103,7 @@ class NavigateLatLngDialog : BaseDialogFragment(), NavigateLatLngNavigator {
     }
 
     interface OnNavigationChangedListener {
-        fun setCompassModeToNorth()
-        fun setCompassModeToCoordinates(latLng: LatLng)
+        fun setCompassModeNorth()
+        fun setCompassModeCoordinates(latLng: LatLng)
     }
 }

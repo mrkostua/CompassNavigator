@@ -14,9 +14,9 @@ import kotlin.math.sin
  * Created by Kostiantyn Prysiazhnyi on 7/14/2019.
  */
 class CompassUtil(context: Context) : SensorEventListener,
-    ICompassUtil {
+        ICompassUtil {
     companion object {
-        const val ALPHA = 0.97f //TODO try 0.8
+        const val ALPHA = 0.97f
     }
 
     override var listener: CompassListener? = null
@@ -30,20 +30,20 @@ class CompassUtil(context: Context) : SensorEventListener,
 
     private var mAzimuth: Double = 0.0
 
-    override fun startListeningSensorsToNorth() {
+    override fun startListeningSensors() {
         val accelerometerSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         val magneticFieldSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
 
         mSensorManager.run {
             registerListener(
-                this@CompassUtil,
-                accelerometerSensor,
-                SensorManager.SENSOR_DELAY_UI
+                    this@CompassUtil,
+                    accelerometerSensor,
+                    SensorManager.SENSOR_DELAY_UI
             )
             registerListener(
-                this@CompassUtil,
-                magneticFieldSensor,
-                SensorManager.SENSOR_DELAY_UI
+                    this@CompassUtil,
+                    magneticFieldSensor,
+                    SensorManager.SENSOR_DELAY_UI
             )
         }
     }
@@ -57,11 +57,11 @@ class CompassUtil(context: Context) : SensorEventListener,
     }
 
     override fun calculateCoordinatesAzimuth(
-        azimuth: Float,
-        startLat: Double,
-        startLng: Double,
-        destinationLat: Double,
-        destinationLng: Double
+            azimuth: Float,
+            startLat: Double,
+            startLng: Double,
+            destinationLat: Double,
+            destinationLng: Double
     ): Double = azimuth - calculateBearing(startLat, startLng, destinationLat, destinationLng)
 
 
@@ -74,10 +74,10 @@ class CompassUtil(context: Context) : SensorEventListener,
             }
 
             val isRotationMatrixReady = SensorManager.getRotationMatrix(
-                mRotationMatrix,
-                mInclinationMatrix,
-                mGravityVector,
-                mGeomagneticVector
+                    mRotationMatrix,
+                    mInclinationMatrix,
+                    mGravityVector,
+                    mGeomagneticVector
             )
             Timber.d("onSensorChanged + isRotationMatrixReady $isRotationMatrixReady")
             if (isRotationMatrixReady) {
@@ -129,8 +129,8 @@ class CompassUtil(context: Context) : SensorEventListener,
 
         val x = cos(startLatRadians) * sin(endLatRadians) -
                 (sin(startLatRadians) * cos(endLatRadians) * cos(longitudesDifference))
-
         val y = sin(longitudesDifference) * cos(endLatRadians)
+
         return Math.toDegrees(atan2(y, x) + 360) % 360
     }
 

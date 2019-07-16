@@ -10,27 +10,23 @@ import timber.log.Timber
  */
 class NavigateLatLngViewModel(private val validator: CoordinatesValidator) : BaseViewModel<NavigateLatLngNavigator>() {
 
-    fun closeDialog() {
-        navigator.back()
-    }
-
     fun acceptAndNavigate() {
         val latitude = navigator.getLatitudeInputText()
         val longitude = navigator.getLongitudeInputText()
         if (validateLatitudeInput(latitude) && validateLongitudeInput(longitude)) {
             try {
                 navigator.finishFillingInputs()
-                navigator.setCompassModeToCoordinates(LatLng(latitude.toDouble(), longitude.toDouble()))
+                navigator.setCompassModeCoordinates(LatLng(latitude.toDouble(), longitude.toDouble()))
             } catch (e: NumberFormatException) {
                 Timber.e(e, "Error during parsing lat lng String to Double")
-                //TODO show some error message
+                navigator.showErrorParsingLatLng()
             }
         }
     }
 
     fun navigateToNorth() {
         navigator.finishFillingInputs()
-        navigator.setCompassModeToNorth()
+        navigator.setCompassModeNorth()
     }
 
     fun validateLatitudeInput(latitude: String): Boolean {
@@ -65,5 +61,9 @@ class NavigateLatLngViewModel(private val validator: CoordinatesValidator) : Bas
                 true
             }
         }
+    }
+
+    fun closeDialog() {
+        navigator.back()
     }
 }

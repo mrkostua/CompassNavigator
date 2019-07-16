@@ -10,8 +10,8 @@
     <string name="compass_dial" translatable="false">Compass Dial</string>
     <string name="compass_hands" translatable="false">Compass Hands</string>
     <string name="compass_navigate_to">Navigate to</string>
-    <string name="compass_location_error_settings_inadequate">Location settings are inadequate. Fix in Settings</string>
-    <!--TODO rename content up-->
+    <string name="compass_location_error_settings_inadequate">Location settings are inadequate, to continue fix it in Settings.</string>
+
     <!--Navigate to lat lng-->
     <string name="navigate_latitude_hint_text">latitude</string>
     <string name="navigate_longitude_hint_text">longitude</string>
@@ -19,4 +19,5 @@
     <string name="navigate_accept_button_text">accept and navigate</string>
     <string name="navigate_error_empty_input">Can\'t be empty</string>
     <string name="navigate_error_wrong_input">Wrong input</string>
+    <string name="navigate_error_parsing_lat_lng">Found problem with reading coordinates, please try again.</string>
 </resources>

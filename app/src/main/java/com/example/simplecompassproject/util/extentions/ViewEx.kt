@@ -9,9 +9,9 @@ import android.widget.EditText
  */
 
 fun EditText.addTextWatcher(
-    afterChanged: ((s: Editable) -> Unit)? = null,
-    beforeChanged: ((s: CharSequence, start: Int, count: Int, after: Int) -> Unit)? = null,
-    onChanged: ((s: CharSequence, start: Int, before: Int, count: Int) -> Unit)? = null
+        afterChanged: ((s: Editable) -> Unit)? = null,
+        beforeChanged: ((s: CharSequence, start: Int, count: Int, after: Int) -> Unit)? = null,
+        onChanged: ((s: CharSequence, start: Int, before: Int, count: Int) -> Unit)? = null
 ) {
     this.addTextChangedListener(object : TextWatcher {
         override fun afterTextChanged(s: Editable) {

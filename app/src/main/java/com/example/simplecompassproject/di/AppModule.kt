@@ -26,8 +26,8 @@ fun commonsModule() = module {
 }
 
 fun allModules(app: App) = listOf(
-    appModule(app),
-    viewModules,
-    commonsModule()
+        appModule(app),
+        viewModules,
+        commonsModule()
 )
 

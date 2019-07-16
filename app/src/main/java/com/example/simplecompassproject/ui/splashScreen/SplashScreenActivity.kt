@@ -22,7 +22,6 @@ class SplashScreenActivity : AppCompatActivity() {
             decisionWasMade = true
             startActivity(Intent(this, CompassActivity::class.java))
             finish()
-
         }
     }
 }

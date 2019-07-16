@@ -17,14 +17,15 @@ import com.example.simplecompassproject.util.ui.location.LocationService
  */
 
 class CompassViewModel(private val compassUtil: ICompassUtil, private val locationUtil: ILocationService) :
-    BaseViewModel<CompassNavigator>(),
-    CompassUtil.CompassListener, LocationService.LocationServiceListener {
+        BaseViewModel<CompassNavigator>(),
+        CompassUtil.CompassListener, LocationService.LocationServiceListener {
     val azimuthLiveData = MutableLiveData<Pair<Float, Float>>()
 
     private var mPreviousAzimuth = 0f
     private var currentLocation = LatLng(0.0, 0.0)
     private var destinationLocation = LatLng(0.0, 0.0)
     private var mCompassMode = CompassMode.NORTH
+    private var coordinatesCalculatedAzimuth = 0f
 
     override fun newAzimuthResponse(azimuth: Float) {
         when (mCompassMode) {
@@ -33,8 +34,9 @@ class CompassViewModel(private val compassUtil: ICompassUtil, private val locati
                 mPreviousAzimuth = azimuth
             }
             CompassMode.COORDINATES -> {
-                azimuthLiveData.postValue(Pair(mPreviousAzimuth, getCoordinatesAzimuth(azimuth)))
-                mPreviousAzimuth = getCoordinatesAzimuth(azimuth)
+                coordinatesCalculatedAzimuth = getCoordinatesAzimuth(azimuth)
+                azimuthLiveData.postValue(Pair(mPreviousAzimuth, coordinatesCalculatedAzimuth))
+                mPreviousAzimuth = coordinatesCalculatedAzimuth
             }
         }
 
@@ -48,12 +50,12 @@ class CompassViewModel(private val compassUtil: ICompassUtil, private val locati
         currentLocation = location
     }
 
-    fun setupCompass() {
+    fun startCompassSensors() {
         compassUtil.listener = this
-        compassUtil.startListeningSensorsToNorth()
+        compassUtil.startListeningSensors()
     }
 
-    fun stopListeningToSensors() { //TODO rename, mst similar to setupCompass
+    fun stopCompassSensors() {
         compassUtil.stopListeningSensors()
     }
 
@@ -88,11 +90,11 @@ class CompassViewModel(private val compassUtil: ICompassUtil, private val locati
         mCompassMode = CompassMode.COORDINATES
     }
 
-    private fun getCoordinatesAzimuth(azimuth: Float) = compassUtil.calculateCoordinatesAzimuth(
-        azimuth,
-        currentLocation.latitude,
-        currentLocation.longitude,
-        destinationLocation.latitude,
-        destinationLocation.longitude
+    private fun getCoordinatesAzimuth(northAzimuth: Float) = compassUtil.calculateCoordinatesAzimuth(
+            northAzimuth,
+            currentLocation.latitude,
+            currentLocation.longitude,
+            destinationLocation.latitude,
+            destinationLocation.longitude
     ).toFloat()
 }
