@@ -1,5 +1,7 @@
 package com.example.simplecompassproject.util.ui.compass
 
+import android.location.Location
+
 /**
  * Created by Kostiantyn Prysiazhnyi on 7/14/2019.
  */
@@ -9,9 +11,7 @@ interface ICompassUtil {
     var listener: CompassUtil.CompassListener?
     fun calculateCoordinatesAzimuth(
             azimuth: Float,
-            startLat: Double,
-            startLng: Double,
-            destinationLat: Double,
-            destinationLng: Double
-    ): Double
+            startLocation: Location,
+            destinationLocation: Location
+    ): Float
 }

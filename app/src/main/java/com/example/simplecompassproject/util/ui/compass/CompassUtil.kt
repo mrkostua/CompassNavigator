@@ -5,10 +5,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import timber.log.Timber
-import kotlin.math.atan2
-import kotlin.math.cos
-import kotlin.math.sin
+import android.location.Location
 
 /**
  * Created by Kostiantyn Prysiazhnyi on 7/14/2019.
@@ -58,11 +55,9 @@ class CompassUtil(context: Context) : SensorEventListener,
 
     override fun calculateCoordinatesAzimuth(
             azimuth: Float,
-            startLat: Double,
-            startLng: Double,
-            destinationLat: Double,
-            destinationLng: Double
-    ): Double = azimuth - calculateBearing(startLat, startLng, destinationLat, destinationLng)
+            startLocation: Location,
+            destinationLocation: Location
+    ): Float = (azimuth - startLocation.bearingTo(destinationLocation))
 
 
     override fun onSensorChanged(event: SensorEvent) {
@@ -79,7 +74,6 @@ class CompassUtil(context: Context) : SensorEventListener,
                     mGravityVector,
                     mGeomagneticVector
             )
-            Timber.d("onSensorChanged + isRotationMatrixReady $isRotationMatrixReady")
             if (isRotationMatrixReady) {
                 SensorManager.getOrientation(mRotationMatrix, mOrientationsResultMatrix)
                 listener?.newAzimuthResponse(calculateNorthAzimuth(mOrientationsResultMatrix[0]).toFloat())
@@ -120,18 +114,6 @@ class CompassUtil(context: Context) : SensorEventListener,
         mGravityVector[0] = ALPHA * mGravityVector[0] + (1 - ALPHA) * xAxisAcceleration
         mGravityVector[1] = ALPHA * mGravityVector[1] + (1 - ALPHA) * yAxisAcceleration
         mGravityVector[2] = ALPHA * mGravityVector[2] + (1 - ALPHA) * zAxisAcceleration
-    }
-
-    private fun calculateBearing(startLat: Double, startLng: Double, endLat: Double, endLng: Double): Double {
-        val longitudesDifference = Math.toRadians(endLng - startLng)
-        val startLatRadians = Math.toRadians(startLat)
-        val endLatRadians = Math.toRadians(endLat)
-
-        val x = cos(startLatRadians) * sin(endLatRadians) -
-                (sin(startLatRadians) * cos(endLatRadians) * cos(longitudesDifference))
-        val y = sin(longitudesDifference) * cos(endLatRadians)
-
-        return Math.toDegrees(atan2(y, x) + 360) % 360
     }
 
     interface CompassListener {

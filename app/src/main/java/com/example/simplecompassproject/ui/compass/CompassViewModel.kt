@@ -1,16 +1,15 @@
 package com.example.simplecompassproject.ui.compass
 
-import android.annotation.SuppressLint
-import androidx.annotation.RequiresPermission
+import android.location.Location
 import androidx.annotation.UiThread
 import androidx.lifecycle.MutableLiveData
-import com.example.simplecompassproject.data.LatLng
 import com.example.simplecompassproject.util.ui.BaseViewModel
 import com.example.simplecompassproject.util.ui.compass.CompassMode
 import com.example.simplecompassproject.util.ui.compass.CompassUtil
 import com.example.simplecompassproject.util.ui.compass.ICompassUtil
 import com.example.simplecompassproject.util.ui.location.ILocationService
 import com.example.simplecompassproject.util.ui.location.LocationService
+import timber.log.Timber
 
 /**
  * Created by Kostiantyn Prysiazhnyi on 7/14/2019.
@@ -19,24 +18,30 @@ import com.example.simplecompassproject.util.ui.location.LocationService
 class CompassViewModel(private val compassUtil: ICompassUtil, private val locationUtil: ILocationService) :
         BaseViewModel<CompassNavigator>(),
         CompassUtil.CompassListener, LocationService.LocationServiceListener {
-    val azimuthLiveData = MutableLiveData<Pair<Float, Float>>()
+    val azimuthLd = MutableLiveData<Pair<Float, Float>>()
+    val destinationLocationLd = MutableLiveData<String>()
 
-    private var mPreviousAzimuth = 0f
-    private var currentLocation = LatLng(0.0, 0.0)
-    private var destinationLocation = LatLng(0.0, 0.0)
+    private var currentLocation = locationUtil.getDefaultLocationOb()
+    private var isCurrentLocationReady = false
+    private var mDestinationLocation = locationUtil.getDefaultLocationOb()
     private var mCompassMode = CompassMode.NORTH
-    private var coordinatesCalculatedAzimuth = 0f
+
+    private var mCoordinatesCalculatedAzimuth = 0f
+    private var mPreviousAzimuth = Float.MAX_VALUE
+    private var mPreviousDistance = 0f
 
     override fun newAzimuthResponse(azimuth: Float) {
         when (mCompassMode) {
             CompassMode.NORTH -> {
-                azimuthLiveData.postValue(Pair(mPreviousAzimuth, azimuth))
+                azimuthLd.postValue(Pair(mPreviousAzimuth, azimuth))
                 mPreviousAzimuth = azimuth
             }
             CompassMode.COORDINATES -> {
-                coordinatesCalculatedAzimuth = getCoordinatesAzimuth(azimuth)
-                azimuthLiveData.postValue(Pair(mPreviousAzimuth, coordinatesCalculatedAzimuth))
-                mPreviousAzimuth = coordinatesCalculatedAzimuth
+                if (isCurrentLocationReady) {
+                    mCoordinatesCalculatedAzimuth = getCoordinatesAzimuth(azimuth)
+                    azimuthLd.postValue(Pair(mPreviousAzimuth, mCoordinatesCalculatedAzimuth))
+                    mPreviousAzimuth = mCoordinatesCalculatedAzimuth
+                }
             }
         }
 
@@ -46,8 +51,16 @@ class CompassViewModel(private val compassUtil: ICompassUtil, private val locati
         navigator.showErrorLocationSetting()
     }
 
-    override fun onLocationUpdates(location: LatLng) {
+    override fun onLocationUpdates(location: Location) {
+        if (isCurrentLocationReady.not()) {
+            isCurrentLocationReady = true
+        }
         currentLocation = location
+        navigator.setCurrentLocationText(locationUtil.convertLocationToString(location))
+
+        val newDistance = currentLocation.distanceTo(mDestinationLocation) / 1000
+        navigator.showDistanceToDestinationText(newDistance, checkIfUserGettingCloser(newDistance))
+        mPreviousDistance = newDistance
     }
 
     fun startCompassSensors() {
@@ -59,42 +72,56 @@ class CompassViewModel(private val compassUtil: ICompassUtil, private val locati
         compassUtil.stopListeningSensors()
     }
 
-    @SuppressLint("MissingPermission")
     @UiThread
     fun showNavigateLatLngDialog() {
-        if (navigator.checkLocationPermissionGranted()) {
+        if (navigator.checkLocationPermission()) {
             navigator.showNavigateLatLngDialog()
-            locationUtil.startLocationUpdates()
         } else {
             navigator.askForLocationPermission()
         }
     }
 
-    @RequiresPermission(value = "android.permission.ACCESS_FINE_LOCATION")
     fun startListeningToLocation() {
-        if (mCompassMode == CompassMode.COORDINATES) {
-            locationUtil.startLocationUpdates()
+        Timber.i("startListeningToLocation mCompassMode $mCompassMode")
+        if (mCompassMode == CompassMode.COORDINATES && navigator.checkLocationPermission()) {
+            locationUtil.startLocationUpdates(this)
+            navigator.setLocationViewsVisibility(true)
+            if (isCurrentLocationReady.not()) {
+                navigator.showLocationStateNotRead()
+                navigator.showDistanceCalculationNotReady()
+            }
         }
     }
 
     fun stopListeningToLocation() {
         locationUtil.stopLocationsUpdates()
+        isCurrentLocationReady = false
+        navigator.setLocationViewsVisibility(false)
+
     }
 
     fun changeCompassModeToNorth() {
         mCompassMode = CompassMode.NORTH
+        stopListeningToLocation()
     }
 
-    fun changeCompassModeToCoordinates(latLng: LatLng) {
-        currentLocation = latLng
-        mCompassMode = CompassMode.COORDINATES
+    fun changeCompassModeToCoordinates(location: Location) {
+        Timber.i("changeCompassModeToCoordinates")
+        if (mCompassMode == CompassMode.NORTH) {
+            mCompassMode = CompassMode.COORDINATES
+            startListeningToLocation()
+            mDestinationLocation = location
+            destinationLocationLd.postValue(locationUtil.convertLocationToString(location))
+        }
     }
 
     private fun getCoordinatesAzimuth(northAzimuth: Float) = compassUtil.calculateCoordinatesAzimuth(
             northAzimuth,
-            currentLocation.latitude,
-            currentLocation.longitude,
-            destinationLocation.latitude,
-            destinationLocation.longitude
-    ).toFloat()
+            currentLocation,
+            mDestinationLocation
+    )
+
+    private fun checkIfUserGettingCloser(currentDistance: Float): Boolean {
+        return currentDistance < mPreviousDistance
+    }
 }

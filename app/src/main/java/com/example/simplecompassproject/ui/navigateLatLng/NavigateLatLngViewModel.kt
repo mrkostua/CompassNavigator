@@ -1,6 +1,7 @@
 package com.example.simplecompassproject.ui.navigateLatLng
 
-import com.example.simplecompassproject.data.LatLng
+import android.location.Location
+import android.location.LocationManager
 import com.example.simplecompassproject.util.ui.BaseViewModel
 import com.example.simplecompassproject.util.ui.location.CoordinatesValidator
 import timber.log.Timber
@@ -11,12 +12,17 @@ import timber.log.Timber
 class NavigateLatLngViewModel(private val validator: CoordinatesValidator) : BaseViewModel<NavigateLatLngNavigator>() {
 
     fun acceptAndNavigate() {
+        Timber.i("acceptAndNavigate")
         val latitude = navigator.getLatitudeInputText()
         val longitude = navigator.getLongitudeInputText()
         if (validateLatitudeInput(latitude) && validateLongitudeInput(longitude)) {
             try {
+                val destinationLocation = Location(LocationManager.GPS_PROVIDER).apply {
+                    this.latitude = latitude.toDouble()
+                    this.longitude = longitude.toDouble()
+                }
                 navigator.finishFillingInputs()
-                navigator.setCompassModeCoordinates(LatLng(latitude.toDouble(), longitude.toDouble()))
+                navigator.setCompassModeCoordinates(destinationLocation)
             } catch (e: NumberFormatException) {
                 Timber.e(e, "Error during parsing lat lng String to Double")
                 navigator.showErrorParsingLatLng()

@@ -1,6 +1,6 @@
 package com.example.simplecompassproject.ui.navigateLatLng
 
-import com.example.simplecompassproject.data.LatLng
+import android.location.Location
 import com.example.simplecompassproject.util.ui.Navigator
 
 /**
@@ -17,6 +17,6 @@ interface NavigateLatLngNavigator : Navigator {
     fun getLongitudeInputText(): String
     fun getLatitudeInputText(): String
     fun setCompassModeNorth()
-    fun setCompassModeCoordinates(latLng: LatLng)
+    fun setCompassModeCoordinates(location: Location)
     fun showErrorParsingLatLng()
 }

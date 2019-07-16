@@ -2,13 +2,13 @@ package com.example.simplecompassproject.ui.navigateLatLng
 
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.location.Location
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import com.example.simplecompassproject.R
-import com.example.simplecompassproject.data.LatLng
 import com.example.simplecompassproject.databinding.DialogNavigationLatLngBinding
 import com.example.simplecompassproject.util.extentions.addTextWatcher
 import com.example.simplecompassproject.util.ui.BaseDialogFragment
@@ -86,8 +86,8 @@ class NavigateLatLngDialog : BaseDialogFragment(), NavigateLatLngNavigator {
         dismiss()
     }
 
-    override fun setCompassModeCoordinates(latLng: LatLng) {
-        mActivityCallback.setCompassModeCoordinates(latLng)
+    override fun setCompassModeCoordinates(location: Location) {
+        mActivityCallback.setCompassModeCoordinates(location)
         dismiss()
     }
 
@@ -104,6 +104,6 @@ class NavigateLatLngDialog : BaseDialogFragment(), NavigateLatLngNavigator {
 
     interface OnNavigationChangedListener {
         fun setCompassModeNorth()
-        fun setCompassModeCoordinates(latLng: LatLng)
+        fun setCompassModeCoordinates(location: Location)
     }
 }

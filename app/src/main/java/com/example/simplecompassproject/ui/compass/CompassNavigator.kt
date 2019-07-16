@@ -8,6 +8,11 @@ import com.example.simplecompassproject.util.ui.Navigator
 interface CompassNavigator : Navigator {
     fun showNavigateLatLngDialog()
     fun askForLocationPermission()
-    fun checkLocationPermissionGranted(): Boolean
+    fun checkLocationPermission(): Boolean
     fun showErrorLocationSetting()
+    fun setCurrentLocationText(location: String)
+    fun showLocationStateNotRead()
+    fun showDistanceToDestinationText(distance: Float, isGettingCloser: Boolean)
+    fun showDistanceCalculationNotReady()
+    fun setLocationViewsVisibility(isVisible: Boolean)
 }

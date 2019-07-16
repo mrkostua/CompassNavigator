@@ -3,7 +3,9 @@ package com.example.simplecompassproject.ui.compass
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Bundle
+import android.view.View
 import android.view.animation.Animation
 import android.view.animation.RotateAnimation
 import androidx.appcompat.app.AppCompatActivity
@@ -12,7 +14,6 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import com.example.simplecompassproject.R
-import com.example.simplecompassproject.data.LatLng
 import com.example.simplecompassproject.databinding.ActivityCompassBinding
 import com.example.simplecompassproject.ui.navigateLatLng.NavigateLatLngDialog
 import com.example.simplecompassproject.util.ui.UiNavigator
@@ -47,17 +48,16 @@ class CompassActivity : AppCompatActivity(), CompassNavigator, PermissionListene
         mBinding.executePendingBindings()
     }
 
-    override fun onResume() {
+    override fun onResume() { //TODO also save state in onSaveInstance, so in on resume in case compassMode Yes in case person lock the phone and unlock he still wan't to follow same destination fix it
+        toast("onResume")
+        Timber.i("onResume")
         super.onResume()
         mViewModel.startCompassSensors()
-
-        val permissionState = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-        if (permissionState == PackageManager.PERMISSION_GRANTED) {
-            mViewModel.startListeningToLocation()
-        }
+        checkPermissionAndListenLocation()
     }
 
     override fun onPause() {
+        Timber.i("onPause")
         super.onPause()
         mViewModel.stopCompassSensors()
         mViewModel.stopListeningToLocation()
@@ -65,8 +65,8 @@ class CompassActivity : AppCompatActivity(), CompassNavigator, PermissionListene
 
     //TODO nice  section separations with comments sections (some tool or styles)
 
-    override fun setCompassModeCoordinates(latLng: LatLng) {
-        mViewModel.changeCompassModeToCoordinates(latLng)
+    override fun setCompassModeCoordinates(location: Location) {
+        mViewModel.changeCompassModeToCoordinates(location)
     }
 
     override fun setCompassModeNorth() {
@@ -82,7 +82,7 @@ class CompassActivity : AppCompatActivity(), CompassNavigator, PermissionListene
         }
     }
 
-    override fun checkLocationPermissionGranted(): Boolean {
+    override fun checkLocationPermission(): Boolean {
         val permissionState = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
         return permissionState == PackageManager.PERMISSION_GRANTED
     }
@@ -109,7 +109,7 @@ class CompassActivity : AppCompatActivity(), CompassNavigator, PermissionListene
                 .withPermission(Manifest.permission.ACCESS_FINE_LOCATION)
                 .withListener(this)
                 .onSameThread()
-                .withErrorListener { Timber.d("Dexter permission check error $it") }
+                .withErrorListener { Timber.e("Dexter permission check error $it") }
                 .check()
     }
 
@@ -117,12 +117,51 @@ class CompassActivity : AppCompatActivity(), CompassNavigator, PermissionListene
         toast(R.string.compass_location_error_settings_inadequate)
     }
 
+    override fun setCurrentLocationText(location: String) {
+        mBinding.compassCurrentLocationTv.apply {
+            setTextColor(ContextCompat.getColor(this@CompassActivity, R.color.colorAccent))
+            text = location
+        }
+
+    }
+
+    override fun showLocationStateNotRead() {
+        mBinding.compassCurrentLocationTv.apply {
+            setTextColor(ContextCompat.getColor(this@CompassActivity, R.color.red))
+            text = getString(R.string.compass_location_not_established_message)
+        }
+    }
+
+    override fun showDistanceToDestinationText(distance: Float, isGettingCloser: Boolean) {
+        mBinding.compassDistanceToDestinationTv.apply {
+            setTextColor(ContextCompat.getColor(this@CompassActivity,
+                    if (isGettingCloser) R.color.colorAccent else R.color.red))
+
+            text = getString(R.string.compass_distance_to_destination, distance)
+        }
+    }
+
+    override fun showDistanceCalculationNotReady() {
+        mBinding.compassDistanceToDestinationTv.apply {
+            setTextColor(ContextCompat.getColor(this@CompassActivity, R.color.red))
+            text = getString(R.string.compass_distance_not_no_calculated)
+        }
+    }
+
+    override fun setLocationViewsVisibility(isVisible: Boolean) {
+        if (isVisible) {
+            mBinding.compassNavigationModeViewsG.visibility = View.VISIBLE
+        } else {
+            mBinding.compassNavigationModeViewsG.visibility = View.GONE
+        }
+    }
+
     private fun init() {
         observeAzimuthChanges()
     }
 
     private fun observeAzimuthChanges() {
-        mViewModel.azimuthLiveData.observe(this, Observer(::animateCompassHandsTo))
+        mViewModel.azimuthLd.observe(this, Observer(::animateCompassHandsTo))
     }
 
     private fun animateCompassHandsTo(azimuths: Pair<Float, Float>) {
@@ -140,8 +179,10 @@ class CompassActivity : AppCompatActivity(), CompassNavigator, PermissionListene
         mBinding.compassHandsIv.startAnimation(animation)
     }
 
-    private fun updateCurrentLocationTv() {
-        //TODO create textView and handle visibility
+    private fun checkPermissionAndListenLocation() {
+        if (checkLocationPermission()) {
+            mViewModel.startListeningToLocation()
+        }
     }
 
     override fun back() {

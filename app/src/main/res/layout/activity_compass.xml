@@ -55,5 +55,78 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/compassCurrentLocationTitleTv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_m"
+            android:layout_marginTop="@dimen/margin_ml"
+            android:text="@string/compass_current_location_title"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/compassCurrentLocationTv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_m"
+            android:layout_marginEnd="@dimen/margin_m"
+            android:textColor="@color/colorAccent"
+            app:layout_constraintBottom_toBottomOf="@id/compassCurrentLocationTitleTv"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/compassCurrentLocationTitleTv"
+            app:layout_constraintTop_toTopOf="@id/compassCurrentLocationTitleTv" />
+
+        <TextView
+            android:id="@+id/compassDestinationLocationTitleTv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_ml"
+            android:text="@string/compass_destination_location_title"
+            app:layout_constraintStart_toStartOf="@id/compassCurrentLocationTitleTv"
+            app:layout_constraintTop_toBottomOf="@id/compassCurrentLocationTitleTv" />
+
+        <TextView
+            android:id="@+id/compassDestinationLocationTv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_m"
+            android:layout_marginEnd="@dimen/margin_m"
+            android:text="@{viewModel.destinationLocationLd}"
+            android:textColor="@color/colorAccent"
+            app:layout_constraintBottom_toBottomOf="@id/compassDestinationLocationTitleTv"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/compassDestinationLocationTitleTv"
+            app:layout_constraintTop_toTopOf="@id/compassDestinationLocationTitleTv" />
+
+        <TextView
+            android:id="@+id/compassDistanceToDestinationTitleTv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_ml"
+            android:text="@string/compass_distance_to_destination_title"
+            app:layout_constraintStart_toStartOf="@id/compassDestinationLocationTitleTv"
+            app:layout_constraintTop_toBottomOf="@id/compassDestinationLocationTitleTv" />
+
+        <TextView
+            android:id="@+id/compassDistanceToDestinationTv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_m"
+            android:layout_marginEnd="@dimen/margin_m"
+            android:textColor="@color/colorAccent"
+            app:layout_constraintBottom_toBottomOf="@id/compassDistanceToDestinationTitleTv"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/compassDistanceToDestinationTitleTv"
+            app:layout_constraintTop_toTopOf="@id/compassDistanceToDestinationTitleTv" />
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/compassNavigationModeViewsG"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:constraint_referenced_ids="compassCurrentLocationTitleTv,compassDestinationLocationTitleTv,
+            compassDistanceToDestinationTitleTv,compassCurrentLocationTv,compassDestinationLocationTv,compassDistanceToDestinationTv" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

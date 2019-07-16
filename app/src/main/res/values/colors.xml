@@ -8,5 +8,5 @@
 
     <color name="textTitle">#80000000</color>
     <color name="textContent">#000000</color>
-
+    <color name="red">#FF0000</color>
 </resources>

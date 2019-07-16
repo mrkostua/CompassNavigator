@@ -2,9 +2,10 @@ package com.example.simplecompassproject.util.ui.location
 
 import android.Manifest
 import android.content.Context
+import android.location.Location
+import android.location.LocationManager
 import android.os.Looper
 import androidx.annotation.RequiresPermission
-import com.example.simplecompassproject.data.LatLng
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.location.*
 import timber.log.Timber
@@ -14,16 +15,16 @@ import timber.log.Timber
  */
 class LocationService(private val context: Context) : LocationCallback(), ILocationService {
     companion object {
-        private const val UPDATE_INTERVAL_IN_MILLISECONDS = 10000L
+        private const val UPDATE_INTERVAL_IN_MILLISECONDS = 1000L
 
         /**
          * location updates will be received if another app is requesting
          * the locations faster than your app can handle
          */
-        private const val FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 5000L
+        private const val FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 500L
     }
 
-    override var listener: LocationServiceListener? = null
+    private var mListener: LocationServiceListener? = null
 
     private lateinit var mFusedLocationClient: FusedLocationProviderClient
     private lateinit var mSettingsClient: SettingsClient
@@ -31,7 +32,6 @@ class LocationService(private val context: Context) : LocationCallback(), ILocat
     private lateinit var mLocationSettingsRequest: LocationSettingsRequest
     private val mLocationCallback: LocationCallback = this
     private var mIsLocationActive = false
-    private var lastKnownLocation = LatLng(0.0, 0.0)
 
     init {
         mIsLocationActive = false
@@ -40,16 +40,16 @@ class LocationService(private val context: Context) : LocationCallback(), ILocat
 
     override fun onLocationResult(locationResult: LocationResult?) {
         super.onLocationResult(locationResult)
+        Timber.i("onLocationResult ${locationResult?.lastLocation?.latitude} + ${locationResult?.lastLocation?.longitude}")
         locationResult?.lastLocation?.let {
-            lastKnownLocation.latitude = it.latitude
-            lastKnownLocation.longitude = it.longitude
-            listener?.onLocationUpdates(lastKnownLocation)
+            mListener?.onLocationUpdates(it)
         }
     }
 
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-    override fun startLocationUpdates() {
+    override fun startLocationUpdates(listener: LocationServiceListener) {
         if (mIsLocationActive.not()) {
+            mListener = listener
             startListeningLocationUpdates()
         }
     }
@@ -58,6 +58,15 @@ class LocationService(private val context: Context) : LocationCallback(), ILocat
         if (mIsLocationActive) {
             stopListeningLocationUpdates()
         }
+    }
+
+    override fun getDefaultLocationOb() = Location(LocationManager.GPS_PROVIDER).apply {
+        latitude = 0.0
+        longitude = 0.0
+    }
+
+    override fun convertLocationToString(loc: Location): String {
+        return Location.convert(loc.latitude, Location.FORMAT_DEGREES) + ", " + Location.convert(loc.longitude, Location.FORMAT_DEGREES)
     }
 
     private fun initLocationClient() {
@@ -90,7 +99,7 @@ class LocationService(private val context: Context) : LocationCallback(), ILocat
                     when ((exception as ApiException).statusCode) {
                         LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE -> {
                             Timber.e(exception, "Error in listening for location updates")
-                            listener?.locationListenerFailure()
+                            mListener?.locationListenerFailure()
                         }
                         else -> Timber.e(exception, "Error in listening for location updates")
                     }
@@ -104,6 +113,6 @@ class LocationService(private val context: Context) : LocationCallback(), ILocat
 
     interface LocationServiceListener {
         fun locationListenerFailure()
-        fun onLocationUpdates(location: LatLng)
+        fun onLocationUpdates(location: Location)
     }
 }
