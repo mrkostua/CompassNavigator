@@ -109,6 +109,7 @@
             android:drawablePadding="@dimen/padding_l"
             android:onClick="@{() -> viewModel.navigateToNorth()}"
             android:paddingStart="@dimen/padding_l"
+            android:paddingEnd="@dimen/padding_l"
             android:text="@string/navigate_to_north"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/navigateLongitudeTil" />

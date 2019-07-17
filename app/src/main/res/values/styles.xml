@@ -16,11 +16,6 @@
         <item name="boxStrokeColor">@color/textTitle</item>
     </style>
 
-
-    <style name="ContentText" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/textContent</item>
-    </style>
-
     <style name="CoordinatesEditTextStyle" parent="Widget.AppCompat.EditText">
         <item name="android:digits">-0123456789.</item>
         <item name="android:textColor">@color/textContent</item>
