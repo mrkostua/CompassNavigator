@@ -3,7 +3,9 @@ package com.example.simplecompassproject.di
 import com.example.simplecompassproject.App
 import com.example.simplecompassproject.util.ui.UiNavigator
 import com.example.simplecompassproject.util.ui.compass.CompassSensorsService
+import com.example.simplecompassproject.util.ui.compass.ICompassSensorsService
 import com.example.simplecompassproject.util.ui.location.CoordinatesValidator
+import com.example.simplecompassproject.util.ui.location.ILocationService
 import com.example.simplecompassproject.util.ui.location.LocationService
 import org.koin.dsl.module.module
 
@@ -13,8 +15,8 @@ import org.koin.dsl.module.module
 
 fun appModule(app: App) = module {
     single { app }
-    factory { CompassSensorsService(app) }
-    factory { LocationService(app) }
+    factory { CompassSensorsService(app) as ICompassSensorsService }
+    factory { LocationService(app) as ILocationService }
 
 }
 
