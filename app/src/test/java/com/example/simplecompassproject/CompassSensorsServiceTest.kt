@@ -60,14 +60,14 @@ class CompassSensorsServiceTest {
         val expectedMaxResultKrakowKievAz = -86.44f + 5
         val expectedMinResultKrakowKievAz = -86.44f - 5
         val result = mCompassSensorsService.calculateCoordinatesAzFromNorthAz(
-                mNorthAzimuth,
-                mKrakowLocation,
-                mKievLocation
+            mNorthAzimuth,
+            mKrakowLocation,
+            mKievLocation
         )
         assertThat(
-                "azimuth for krakow kiev location calculation results are wrong",
-                result,
-                allOf(greaterThanOrEqualTo(expectedMinResultKrakowKievAz), lessThanOrEqualTo(expectedMaxResultKrakowKievAz))
+            "azimuth for krakow kiev location calculation results are wrong",
+            result,
+            allOf(greaterThanOrEqualTo(expectedMinResultKrakowKievAz), lessThanOrEqualTo(expectedMaxResultKrakowKievAz))
         )
     }
 
@@ -90,12 +90,12 @@ class CompassSensorsServiceTest {
     }
 
     /**
-     * Test, Listener must not get trigged, as ShadowSensorManager createSensorEvent() - creates empty event without type.
+     * Test, Listener must not get triggered, as ShadowSensorManager createSensorEvent() - creates empty event without type.
      * As in CompassSensorsService we are listening for only chosen sensor events, by logging in onSensorChanged() we can that
      * listener gets triggered.
      */
     @Test
-    fun testIfCompassListenerGetsTriggered() {
+    fun `test if compass listeners gets triggered`() {
         mCompassSensorsService.startListeningSensors(mCompassListenerStab)
         if (mCompassListenerStab.isSensorEventOccurred) {
             mCompassListenerStab.resetResults()
@@ -106,5 +106,4 @@ class CompassSensorsServiceTest {
 
         assertFalse("SensorEvent wasn't captured and send to listener", mCompassListenerStab.isSensorEventOccurred)
     }
-
 }

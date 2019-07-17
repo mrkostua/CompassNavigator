@@ -37,17 +37,18 @@ dependencies {
 
     //For testing
     testImplementation "junit:junit:$rootProject.junit_version"
-    androidTestImplementation "androidx.test:runner:$rootProject.test_runner_version"
+    testImplementation "androidx.test:runner:$rootProject.test_runner_version"
     androidTestImplementation "androidx.test.espresso:espresso-core:$rootProject.esspresso_version"
     androidTestCompile "androidx.test.espresso:espresso-contrib:$rootProject.esspresso_version"
+    testImplementation "androidx.arch.core:core-testing:2.0.1"
 
     //Hamster - for writing matcher in testing
-    androidTestImplementation "org.hamcrest:hamcrest-library:$rootProject.hamcrest_version"
+    testImplementation "org.hamcrest:hamcrest-library:$rootProject.hamcrest_version"
 
     //Mockito - mocking in testing
-    androidTestCompile "org.mockito:mockito-core:$rootProject.mockito_core_version"
+    testImplementation "org.mockito:mockito-core:$rootProject.mockito_core_version"
     testImplementation "org.mockito:mockito-inline:$rootProject.mockito_inline_version"
-    //testImplementation 'org.mockito:mockito-android:2.12.0'
+    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:$rootProject.mockito_kotlin_version"
 
 
     //Roboelectric for shadowing android related things in testing
