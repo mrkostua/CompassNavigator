@@ -56,7 +56,7 @@ class CompassSensorsServiceTest {
      * Not fully precise test, expected azimuth for those 2 location was calculated on trusted7777 website.
      */
     @Test
-    fun calculateCoordinatesAzFromNorthAzTest() {
+    fun `calculate coordinates azimuth between two coordinates with north azimuth`() {
         val expectedMaxResultKrakowKievAz = -86.44f + 5
         val expectedMinResultKrakowKievAz = -86.44f - 5
         val result = mCompassSensorsService.calculateCoordinatesAzFromNorthAz(
@@ -72,14 +72,14 @@ class CompassSensorsServiceTest {
     }
 
     @Test
-    fun testIfSensorListenerActive() {
+    fun `check if sensors listeners created`() {
         mCompassSensorsService.startListeningSensors(mCompassListenerStab)
         val isAnyListenerActive = mShadowSensorManager.hasListener(mCompassSensorsService)
         assertTrue("Zero listener are active", isAnyListenerActive)
     }
 
     @Test
-    fun testStopListeningSensors() {
+    fun `stop listening to compass sensors`() {
         mCompassSensorsService.startListeningSensors(mCompassListenerStab)
         val isAnyListenerActive = mShadowSensorManager.hasListener(mCompassSensorsService)
         if (isAnyListenerActive) {
