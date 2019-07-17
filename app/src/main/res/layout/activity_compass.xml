@@ -33,7 +33,7 @@
             android:layout_width="wrap_content"
             android:layout_height="@dimen/compass_hands_height"
             android:layout_centerInParent="true"
-            android:layout_marginStart="@dimen/margin_ml"
+            android:layout_marginStart="@dimen/margin_m"
             android:contentDescription="@string/compass_hands"
             android:scaleType="fitXY"
             android:src="@drawable/ic_compass_hands"

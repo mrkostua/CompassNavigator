@@ -56,7 +56,7 @@ class CompassSensorsService(context: Context) : SensorEventListener,
         mSensorManager.unregisterListener(this)
     }
 
-    override fun calculateCoordinatesAzimuth(
+    override fun calculateCoordinatesAzFromNorthAz(
             azimuth: Float,
             startLocation: Location,
             destinationLocation: Location
@@ -66,8 +66,9 @@ class CompassSensorsService(context: Context) : SensorEventListener,
 
     //region SensorEventListener
     override fun onSensorChanged(event: SensorEvent) {
+        //println("For CompassSensorsServiceTest onSensorChanged event.sensor.type ${event.sensor?.type}")
         synchronized(this) {
-            when (event.sensor.type) {
+            when (event.sensor?.type) {
                 Sensor.TYPE_MAGNETIC_FIELD -> calculateMagneticField(event.values)
                 Sensor.TYPE_ACCELEROMETER -> calculateAcceleration(event.values)
                 else -> return

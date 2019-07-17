@@ -8,7 +8,7 @@ import android.location.Location
 interface ICompassSensorsService {
     fun startListeningSensors(listener: CompassSensorsService.CompassListener)
     fun stopListeningSensors()
-    fun calculateCoordinatesAzimuth(
+    fun calculateCoordinatesAzFromNorthAz(
             azimuth: Float,
             startLocation: Location,
             destinationLocation: Location
